@@ -1,0 +1,143 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+
+import '../../constants/app_constants.dart';
+import '../data/services/auth_service.dart';
+import '../routes/app_routes.dart';
+
+class AuthController extends GetxController {
+  final AuthService _authService = Get.find();
+  final GetStorage _storage = GetStorage();
+
+  Rx<User?> user = Rx<User?>(null);
+  RxBool isLoading = false.obs;
+  RxString role = ''.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    user.bindStream(_authService.authStateChanges);
+
+    // Load cached role
+    String? cachedRole = _storage.read(AppConstants.userRoleKey);
+    if (cachedRole != null) {
+      role.value = cachedRole;
+    }
+  }
+
+  Future<void> signIn({required String email, required String password}) async {
+    try {
+      isLoading.value = true;
+      final userData = await _authService.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      if (userData != null) {
+        role.value = userData['role'];
+        Get.offAllNamed(AppRoutes.getHomeRoute(userData['role']));
+      }
+    } catch (e) {
+      Get.snackbar('Error', e.toString());
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> signUpStudent({
+    required String email,
+    required String password,
+    required String fullName,
+    required String studentId,
+    required String batch,
+    required List<String> interests,
+  }) async {
+    try {
+      isLoading.value = true;
+      final userData = await _authService.signUpStudent(
+        email: email,
+        password: password,
+        fullName: fullName,
+        studentId: studentId,
+        batch: batch,
+        interests: interests,
+      );
+
+      if (userData != null) {
+        role.value = userData['role'];
+        Get.offAllNamed(AppRoutes.studentDashboard);
+      }
+    } catch (e) {
+      Get.snackbar('Error', e.toString());
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> signUpOrganizer({
+    required String email,
+    required String password,
+    required String fullName,
+    required String organizationName,
+    required String organizationType,
+    required String contactPhone,
+    String? logoUrl,
+  }) async {
+    try {
+      isLoading.value = true;
+      final userData = await _authService.signUpOrganizer(
+        email: email,
+        password: password,
+        fullName: fullName,
+        organizationName: organizationName,
+        organizationType: organizationType,
+        contactPhone: contactPhone,
+        logoUrl: logoUrl,
+      );
+
+      if (userData != null) {
+        role.value = userData['role'];
+        Get.offAllNamed(AppRoutes.organizerDashboard);
+      }
+    } catch (e) {
+      Get.snackbar('Error', e.toString());
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> signUpAdmin({
+    required String email,
+    required String password,
+    required String adminCode,
+  }) async {
+    try {
+      isLoading.value = true;
+      final userData = await _authService.signUpAdmin(
+        email: email,
+        password: password,
+        adminCode: adminCode,
+      );
+
+      if (userData != null) {
+        role.value = userData['role'];
+        Get.offAllNamed(AppRoutes.adminDashboard);
+      }
+    } catch (e) {
+      Get.snackbar('Error', e.toString());
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> signOut() async {
+    await _authService.signOut();
+    role.value = '';
+    Get.offAllNamed(AppRoutes.initial);
+  }
+
+  String? getCachedRole() {
+    return _storage.read(AppConstants.userRoleKey);
+  }
+}
