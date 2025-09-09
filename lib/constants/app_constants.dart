@@ -1,4 +1,5 @@
 class AppConstants {
+  static const String appLogo = 'assets/logo/app_logo_2.png';
   static const String appName = 'Event Board';
   static const String primaryColor = '#1976D2';
   static const String accentColor = '#EF6C00';

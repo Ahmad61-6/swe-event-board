@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
+import 'package:event_board/data/services/network_service.dart';
 
 import '../../data/model/event.dart';
 
 class StudentSearchController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final NetworkService _networkService = Get.find();
 
   final RxList<Event> searchResults = <Event>[].obs;
   final RxBool isLoading = false.obs;
@@ -22,6 +24,11 @@ class StudentSearchController extends GetxController {
     try {
       isLoading.value = true;
       hasSearched.value = true;
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        isLoading.value = false;
+        return;
+      }
 
       // Simple search implementation - in production, you'd use Firestore indexes
       QuerySnapshot snapshot = await _firestore

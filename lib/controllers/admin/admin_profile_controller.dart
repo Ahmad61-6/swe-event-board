@@ -1,11 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
+import 'package:event_board/data/services/network_service.dart';
 
 import '../../data/model/admin.dart';
 import '../auth_controller.dart';
 
 class AdminProfileController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final NetworkService _networkService = Get.find();
   final Rx<Admin?> admin = Rx<Admin?>(null);
   final RxBool isLoading = true.obs;
 
@@ -18,6 +20,11 @@ class AdminProfileController extends GetxController {
   Future<void> loadAdminProfile() async {
     try {
       isLoading.value = true;
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        isLoading.value = false;
+        return;
+      }
       final user = Get.find<AuthController>().user.value;
       if (user == null) {
         isLoading.value = false;
@@ -45,6 +52,10 @@ class AdminProfileController extends GetxController {
 
   Future<void> updateAdmin(Admin ad) async {
     try {
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        return;
+      }
       await _firestore
           .collection('admins')
           .doc(ad.uid)

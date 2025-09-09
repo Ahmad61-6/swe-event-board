@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../constants/app_constants.dart';
 import '../../../controllers/auth_controller.dart';
@@ -18,19 +21,35 @@ class _OrganizerSignupViewState extends State<OrganizerSignupView> {
   final _fullNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   final _organizationNameController = TextEditingController();
   final _organizationTypeController = TextEditingController();
   final _contactPhoneController = TextEditingController();
+
+  File? _image;
+  bool _passwordVisible = false;
+  bool _confirmPasswordVisible = false;
 
   @override
   void dispose() {
     _fullNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     _organizationNameController.dispose();
     _organizationTypeController.dispose();
     _contactPhoneController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+    }
   }
 
   @override
@@ -42,8 +61,19 @@ class _OrganizerSignupViewState extends State<OrganizerSignupView> {
         child: Form(
           key: _formKey,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              GestureDetector(
+                onTap: _pickImage,
+                child: CircleAvatar(
+                  radius: 50,
+                  backgroundImage: _image != null ? FileImage(_image!) : null,
+                  child: _image == null
+                      ? const Icon(Icons.add_a_photo, size: 50)
+                      : null,
+                ),
+              ),
+              const SizedBox(height: 16),
               const Text(
                 'Create Organizer Account',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
@@ -83,7 +113,7 @@ class _OrganizerSignupViewState extends State<OrganizerSignupView> {
               _buildTextFormField(
                 controller: _passwordController,
                 label: 'Password',
-                obscureText: true,
+                obscureText: !_passwordVisible,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a password';
@@ -93,6 +123,43 @@ class _OrganizerSignupViewState extends State<OrganizerSignupView> {
                   }
                   return null;
                 },
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _passwordVisible ? Icons.visibility : Icons.visibility_off,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _passwordVisible = !_passwordVisible;
+                    });
+                  },
+                ),
+              ),
+              const SizedBox(height: 16),
+              _buildTextFormField(
+                controller: _confirmPasswordController,
+                label: 'Confirm Password',
+                obscureText: !_confirmPasswordVisible,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please confirm your password';
+                  }
+                  if (value != _passwordController.text) {
+                    return 'Passwords do not match';
+                  }
+                  return null;
+                },
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _confirmPasswordVisible
+                        ? Icons.visibility
+                        : Icons.visibility_off,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _confirmPasswordVisible = !_confirmPasswordVisible;
+                    });
+                  },
+                ),
               ),
               const SizedBox(height: 16),
               _buildTextFormField(
@@ -172,6 +239,7 @@ class _OrganizerSignupViewState extends State<OrganizerSignupView> {
     String? Function(String?)? validator,
     TextInputType? keyboardType,
     bool obscureText = false,
+    Widget? suffixIcon,
   }) {
     return TextFormField(
       controller: controller,
@@ -182,6 +250,7 @@ class _OrganizerSignupViewState extends State<OrganizerSignupView> {
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Colors.grey.shade300),
         ),
+        suffixIcon: suffixIcon,
       ),
       keyboardType: keyboardType,
       obscureText: obscureText,
@@ -226,6 +295,7 @@ class _OrganizerSignupViewState extends State<OrganizerSignupView> {
         organizationName: _organizationNameController.text.trim(),
         organizationType: _organizationTypeController.text,
         contactPhone: _contactPhoneController.text.trim(),
+        image: _image,
       );
     }
   }

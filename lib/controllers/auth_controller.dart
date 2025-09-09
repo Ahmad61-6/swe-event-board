@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:event_board/data/services/network_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -9,6 +12,7 @@ import '../routes/app_routes.dart';
 class AuthController extends GetxController {
   final AuthService _authService = Get.find();
   final GetStorage _storage = GetStorage();
+  final NetworkService _networkService = Get.find();
 
   Rx<User?> user = Rx<User?>(null);
   RxBool isLoading = false.obs;
@@ -29,6 +33,11 @@ class AuthController extends GetxController {
   Future<void> signIn({required String email, required String password}) async {
     try {
       isLoading.value = true;
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        isLoading.value = false;
+        return;
+      }
       final userData = await _authService.signInWithEmailAndPassword(
         email: email,
         password: password,
@@ -52,9 +61,15 @@ class AuthController extends GetxController {
     required String studentId,
     required String batch,
     required List<String> interests,
+    File? image,
   }) async {
     try {
       isLoading.value = true;
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        isLoading.value = false;
+        return;
+      }
       final userData = await _authService.signUpStudent(
         email: email,
         password: password,
@@ -62,6 +77,7 @@ class AuthController extends GetxController {
         studentId: studentId,
         batch: batch,
         interests: interests,
+        image: image,
       );
 
       if (userData != null) {
@@ -82,10 +98,15 @@ class AuthController extends GetxController {
     required String organizationName,
     required String organizationType,
     required String contactPhone,
-    String? logoUrl,
+    File? image,
   }) async {
     try {
       isLoading.value = true;
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        isLoading.value = false;
+        return;
+      }
       final userData = await _authService.signUpOrganizer(
         email: email,
         password: password,
@@ -93,7 +114,7 @@ class AuthController extends GetxController {
         organizationName: organizationName,
         organizationType: organizationType,
         contactPhone: contactPhone,
-        logoUrl: logoUrl,
+        image: image,
       );
 
       if (userData != null) {
@@ -114,6 +135,11 @@ class AuthController extends GetxController {
   }) async {
     try {
       isLoading.value = true;
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        isLoading.value = false;
+        return;
+      }
       final userData = await _authService.signUpAdmin(
         email: email,
         password: password,
@@ -132,9 +158,13 @@ class AuthController extends GetxController {
   }
 
   Future<void> signOut() async {
+    if (!await _networkService.isConnected) {
+      Get.snackbar('No Internet', 'Please check your internet connection.');
+      return;
+    }
     await _authService.signOut();
     role.value = '';
-    Get.offAllNamed(AppRoutes.initial);
+    Get.offAllNamed(AppRoutes.login);
   }
 
   String? getCachedRole() {

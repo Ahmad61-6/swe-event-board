@@ -11,21 +11,27 @@ class OnboardingView extends StatelessWidget {
     final OnboardingController controller = Get.put(OnboardingController());
     final PageController pageController = PageController();
 
-    final List<Map<String, String>> onboardingPages = [
+    final List<Map<String, dynamic>> onboardingPages = [
       {
-        'image': 'assets/images/onboarding_1.png', // Replace with your asset
+        'icon': Icons.event,
         'title': 'Discover Exciting Events',
-        'description': 'Find events hosted by various university organizations and clubs, all in one place.',
+        'description':
+            'Find events hosted by various university organizations and clubs, all in one place.',
+        'color': Colors.blue,
       },
       {
-        'image': 'assets/images/onboarding_2.png', // Replace with your asset
+        'icon': Icons.calendar_today,
         'title': 'Stay Organized & Informed',
-        'description': 'Keep track of your event schedule, get reminders, and never miss out on what\'s happening on campus.',
+        'description':
+            'Keep track of your event schedule, get reminders, and never miss out on what\'s happening on campus.',
+        'color': Colors.green,
       },
       {
-        'image': 'assets/images/onboarding_3.png', // Replace with your asset
+        'icon': Icons.groups,
         'title': 'Engage with Your Community',
-        'description': 'Connect with fellow students, join organizations, and become an active part of the university community.',
+        'description':
+            'Connect with fellow students, join organizations, and become an active part of the university community.',
+        'color': Colors.orange,
       },
     ];
 
@@ -37,7 +43,10 @@ class OnboardingView extends StatelessWidget {
               alignment: Alignment.topRight,
               child: TextButton(
                 onPressed: controller.completeOnboarding,
-                child: const Text('Skip'),
+                child: const Text(
+                  'Skip',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                ),
               ),
             ),
             Expanded(
@@ -52,18 +61,35 @@ class OnboardingView extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // TODO: Replace with actual image assets
-                        Icon(Icons.event_seat, size: 150, color: Theme.of(context).primaryColor),
+                        // Enhanced Icon Container
+                        Container(
+                          width: 250,
+                          height: 250,
+                          decoration: BoxDecoration(
+                            color: page['color'].withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            page['icon'],
+                            size: 120,
+                            color: page['color'],
+                          ),
+                        ),
                         const SizedBox(height: 48),
                         Text(
                           page['title']!,
-                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                          style: Theme.of(context).textTheme.headlineSmall
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: page['color'],
+                              ),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 16),
                         Text(
                           page['description']!,
-                          style: Theme.of(context).textTheme.bodyLarge,
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(color: Colors.grey[700], height: 1.5),
                           textAlign: TextAlign.center,
                         ),
                       ],
@@ -77,26 +103,58 @@ class OnboardingView extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Obx(() => Row(
-                        children: List.generate(
-                          onboardingPages.length,
-                          (index) => AnimatedContainer(
-                            duration: const Duration(milliseconds: 300),
-                            margin: const EdgeInsets.symmetric(horizontal: 4),
-                            height: 8,
-                            width: controller.currentPage.value == index ? 24 : 8,
-                            decoration: BoxDecoration(
-                              color: controller.currentPage.value == index
-                                  ? Theme.of(context).primaryColor
-                                  : Colors.grey[300],
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+                  // Page Indicators
+                  Obx(
+                    () => Row(
+                      children: List.generate(
+                        onboardingPages.length,
+                        (index) => AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          height: 10,
+                          width: controller.currentPage.value == index
+                              ? 30
+                              : 10,
+                          decoration: BoxDecoration(
+                            color: controller.currentPage.value == index
+                                ? Theme.of(context).primaryColor
+                                : Colors.grey[300],
+                            borderRadius: BorderRadius.circular(5),
                           ),
                         ),
-                      )),
-                  Obx(() => FloatingActionButton(
+                      ),
+                    ),
+                  ),
+
+                  // Navigation Button
+                  Obx(
+                    () => Container(
+                      height: 60,
+                      width: 60,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          colors: [
+                            Theme.of(context).primaryColor,
+                            Theme.of(context).primaryColor.withOpacity(0.8),
+                          ],
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Theme.of(
+                              context,
+                            ).primaryColor.withOpacity(0.3),
+                            blurRadius: 10,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: FloatingActionButton(
+                        backgroundColor: Colors.transparent,
+                        elevation: 0,
                         onPressed: () {
-                          if (controller.currentPage.value == onboardingPages.length - 1) {
+                          if (controller.currentPage.value ==
+                              onboardingPages.length - 1) {
                             controller.completeOnboarding();
                           } else {
                             pageController.nextPage(
@@ -106,11 +164,16 @@ class OnboardingView extends StatelessWidget {
                           }
                         },
                         child: Icon(
-                          controller.currentPage.value == onboardingPages.length - 1
+                          controller.currentPage.value ==
+                                  onboardingPages.length - 1
                               ? Icons.check
                               : Icons.arrow_forward,
+                          color: Colors.white,
+                          size: 30,
                         ),
-                      )),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),

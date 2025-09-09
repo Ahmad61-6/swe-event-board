@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:event_board/data/services/network_service.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 
 import '../../data/model/event.dart';
@@ -6,6 +8,7 @@ import '../../data/model/organization.dart';
 
 class StudentDashboardController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final NetworkService _networkService = Get.find();
 
   // Carousel events (recent approved events)
   final RxList<Event> carouselEvents = <Event>[].obs;
@@ -39,6 +42,11 @@ class StudentDashboardController extends GetxController {
   Future<void> _loadCarouselEvents() async {
     try {
       isLoadingCarousel.value = true;
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        isLoadingCarousel.value = false;
+        return;
+      }
 
       // Get recent approved events from all organizations
       QuerySnapshot snapshot = await _firestore
@@ -53,6 +61,7 @@ class StudentDashboardController extends GetxController {
           .map((doc) => Event.fromJson(doc.data() as Map<String, dynamic>))
           .toList();
     } catch (e) {
+      debugPrint(e.toString());
       Get.snackbar('Error', 'Failed to load carousel events');
     } finally {
       isLoadingCarousel.value = false;
@@ -61,6 +70,13 @@ class StudentDashboardController extends GetxController {
 
   Future<void> _loadUpcomingEvents({bool refresh = false}) async {
     try {
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        if (refresh) {
+          isLoadingUpcoming.value = false;
+        }
+        return;
+      }
       if (refresh) {
         isLoadingUpcoming.value = true;
         _lastUpcomingEventDoc = null;
@@ -96,6 +112,7 @@ class StudentDashboardController extends GetxController {
       }
     } catch (e) {
       Get.snackbar('Error', 'Failed to load upcoming events');
+      debugPrint(e.toString());
     } finally {
       if (refresh) {
         isLoadingUpcoming.value = false;
@@ -115,6 +132,11 @@ class StudentDashboardController extends GetxController {
   Future<void> _loadClubsToJoin() async {
     try {
       isLoadingClubs.value = true;
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        isLoadingClubs.value = false;
+        return;
+      }
 
       QuerySnapshot snapshot = await _firestore
           .collection('organizations')

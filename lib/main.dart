@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
+import 'bindings/network_binding.dart';
 import 'routes/app_pages.dart';
 import 'routes/app_routes.dart';
 import 'utils/app_theme.dart';
@@ -31,11 +32,7 @@ void main() async {
 
   // Initialize Firebase Messaging
   FirebaseMessaging messaging = FirebaseMessaging.instance;
-  await messaging.requestPermission(
-    alert: true,
-    badge: true,
-    sound: true,
-  );
+  await messaging.requestPermission(alert: true, badge: true, sound: true);
 
   // Error handling
   runZonedGuarded(
@@ -54,7 +51,7 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   final bool isFirstTime;
-  const MyApp({Key? key, required this.isFirstTime}) : super(key: key);
+  const MyApp({super.key, required this.isFirstTime});
 
   @override
   Widget build(BuildContext context) {
@@ -64,9 +61,12 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: AppTheme.getThemeMode(),
-      initialRoute: isFirstTime ? AppRoutes.onboarding : AppRoutes.roleSelection,
+      initialRoute: isFirstTime
+          ? AppRoutes.onboarding
+          : AppRoutes.roleSelection,
       getPages: AppPages.routes,
       smartManagement: SmartManagement.onlyBuilder,
+      initialBinding: NetworkBinding(),
     );
   }
 }

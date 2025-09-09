@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
+import 'package:event_board/data/services/network_service.dart';
 
 import '../../data/model/event.dart';
 import '../../data/model/organization.dart';
@@ -7,6 +8,7 @@ import '../auth_controller.dart';
 
 class OrganizerDashboardController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final NetworkService _networkService = Get.find();
 
   // Organization profile
   Rx<Organization?> organization = Rx<Organization?>(null);
@@ -29,6 +31,11 @@ class OrganizerDashboardController extends GetxController {
 
   Future<void> _loadOrganizationProfile() async {
     try {
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        isLoading.value = false;
+        return;
+      }
       final user = Get.find<AuthController>().user.value;
       if (user == null) return;
 
@@ -56,6 +63,11 @@ class OrganizerDashboardController extends GetxController {
   Future<void> _loadKPIs() async {
     try {
       isLoadingKPIs.value = true;
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        isLoadingKPIs.value = false;
+        return;
+      }
 
       if (organization.value == null) return;
 
@@ -89,6 +101,10 @@ class OrganizerDashboardController extends GetxController {
 
   Future<void> _loadRecentEvents() async {
     try {
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        return;
+      }
       if (organization.value == null) return;
 
       QuerySnapshot snapshot = await _firestore

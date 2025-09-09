@@ -1,11 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
+import 'package:event_board/data/services/network_service.dart';
 
 import '../../data/model/student.dart';
 import '../auth_controller.dart';
 
 class StudentProfileController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final NetworkService _networkService = Get.find();
   final Rx<Student?> student = Rx<Student?>(null);
   final RxBool isLoading = true.obs;
 
@@ -18,6 +20,11 @@ class StudentProfileController extends GetxController {
   Future<void> loadStudentProfile() async {
     try {
       isLoading.value = true;
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        isLoading.value = false;
+        return;
+      }
       final user = Get.find<AuthController>().user.value;
       if (user == null) {
         isLoading.value = false;
@@ -45,6 +52,10 @@ class StudentProfileController extends GetxController {
 
   Future<void> updateStudent(Student std) async {
     try {
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        return;
+      }
       await _firestore
           .collection('students')
           .doc(std.uid)

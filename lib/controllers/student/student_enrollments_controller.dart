@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
+import 'package:event_board/data/services/network_service.dart';
 
 import '../../data/model/enrollment.dart';
 import '../../data/model/event.dart';
@@ -7,6 +8,7 @@ import '../auth_controller.dart';
 
 class StudentEnrollmentsController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final NetworkService _networkService = Get.find();
 
   final RxList<Enrollment> enrollments = <Enrollment>[].obs;
   final RxList<Event> events = <Event>[].obs;
@@ -23,6 +25,13 @@ class StudentEnrollmentsController extends GetxController {
 
   Future<void> _loadEnrollments({bool refresh = false}) async {
     try {
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        if (refresh) {
+          isLoading.value = false;
+        }
+        return;
+      }
       if (refresh) {
         isLoading.value = true;
         _lastEnrollmentDoc = null;
@@ -75,6 +84,9 @@ class StudentEnrollmentsController extends GetxController {
 
   Future<void> _loadAssociatedEvents(List<Enrollment> enrollmentsList) async {
     try {
+      if (!await _networkService.isConnected) {
+        throw Exception('No Internet Connection');
+      }
       // Group enrollments by eventId to avoid duplicate queries
       Map<String, Enrollment> enrollmentMap = {};
       for (var enrollment in enrollmentsList) {

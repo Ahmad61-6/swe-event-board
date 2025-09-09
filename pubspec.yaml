@@ -49,6 +49,9 @@ dependencies:
   mobile_scanner: ^7.0.1
   image_picker: ^1.2.0
   timeago: ^3.7.1
+  lottie: ^3.1.2
+  flutter_native_splash: ^2.4.6
+  connectivity_plus: ^6.1.5
 
 dev_dependencies:
   flutter_test:
@@ -73,9 +76,9 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+assets:
+  - assets/logo/
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -102,3 +105,16 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+flutter_native_splash:
+  color: "#1976D2"
+  image: assets/logo/app_logo_2.png
+  color_dark: "#121212"
+  image_dark: assets/logo/app_logo_2.png
+
+  android_12:
+    image: assets/logo/app_logo_2.png
+    icon_background_color: "#ffffff"
+    image_dark: assets/logo/app_logo_2.png
+    icon_background_color_dark: "#121212"
+
+  web: false

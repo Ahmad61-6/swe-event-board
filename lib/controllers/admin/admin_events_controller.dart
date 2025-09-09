@@ -1,11 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
+import 'package:event_board/data/services/network_service.dart';
 
 import '../../data/model/event.dart';
 import '../../data/model/organization.dart';
 
 class AdminEventsController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final NetworkService _networkService = Get.find();
 
   final RxList<Event> events = <Event>[].obs;
   final RxList<Organization> organizations = <Organization>[].obs;
@@ -23,6 +25,13 @@ class AdminEventsController extends GetxController {
 
   Future<void> loadEvents({bool refresh = false}) async {
     try {
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        if (refresh) {
+          isLoading.value = false;
+        }
+        return;
+      }
       if (refresh) {
         isLoading.value = true;
         _lastEventDoc = null;
@@ -65,6 +74,10 @@ class AdminEventsController extends GetxController {
 
   Future<void> loadOrganizations() async {
     try {
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        return;
+      }
       QuerySnapshot snapshot = await _firestore.collection('organizations').get();
       organizations.value = snapshot.docs
           .map((doc) => Organization.fromJson(doc.data() as Map<String, dynamic>))
@@ -77,6 +90,11 @@ class AdminEventsController extends GetxController {
   Future<void> approveEvent(String eventId, bool approve) async {
     try {
       isUpdating.value = true;
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        isUpdating.value = false;
+        return;
+      }
 
       final eventIndex = events.indexWhere((e) => e.eventId == eventId);
       if (eventIndex == -1) return;

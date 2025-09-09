@@ -1,8 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:event_board/data/services/network_service.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class AdminDashboardController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final NetworkService _networkService = Get.find();
 
   // System KPIs
   final RxInt totalStudents = 0.obs;
@@ -24,6 +27,12 @@ class AdminDashboardController extends GetxController {
   Future<void> _loadKPIs() async {
     try {
       isLoadingKPIs.value = true;
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        isLoadingKPIs.value = false;
+        isLoading.value = false;
+        return;
+      }
 
       // Load total students
       QuerySnapshot studentsSnapshot = await _firestore
@@ -62,6 +71,7 @@ class AdminDashboardController extends GetxController {
 
       totalRevenue.value = revenue;
     } catch (e) {
+      debugPrint(e.toString());
       Get.snackbar('Error', 'Failed to load KPIs');
     } finally {
       isLoadingKPIs.value = false;

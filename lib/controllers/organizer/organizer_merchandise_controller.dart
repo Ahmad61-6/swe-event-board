@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get/get.dart';
+import 'package:event_board/data/services/network_service.dart';
 
 import '../../data/model/organization.dart';
 import '../auth_controller.dart';
@@ -93,6 +94,7 @@ class MerchandiseOrder {
 class OrganizerMerchandiseController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
+  final NetworkService _networkService = Get.find();
 
   final Rx<Organization?> organization = Rx<Organization?>(null);
   final RxList<MerchandiseItem> items = <MerchandiseItem>[].obs;
@@ -111,6 +113,11 @@ class OrganizerMerchandiseController extends GetxController {
   Future<void> _loadOrganizationProfile() async {
     try {
       isLoading.value = true;
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        isLoading.value = false;
+        return;
+      }
       final user = Get.find<AuthController>().user.value;
       if (user == null) {
         isLoading.value = false;
@@ -141,6 +148,10 @@ class OrganizerMerchandiseController extends GetxController {
     if (organization.value == null) return;
 
     try {
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        return;
+      }
       if (refresh) {
         _lastItemDoc = null;
         items.clear();
@@ -182,6 +193,10 @@ class OrganizerMerchandiseController extends GetxController {
   Future<String?> uploadItemImage(File imageFile) async {
     if (organization.value == null) return null;
     try {
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        return null;
+      }
       final storageRef = _storage.ref(
           'organizations/${organization.value!.orgId}/merchandise/${DateTime.now().millisecondsSinceEpoch}.jpg');
       UploadTask uploadTask = storageRef.putFile(imageFile);
@@ -198,6 +213,11 @@ class OrganizerMerchandiseController extends GetxController {
 
     try {
       isCreating.value = true;
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        isCreating.value = false;
+        return;
+      }
 
       final itemId = _firestore.collection('temp').doc().id;
       final newItem = MerchandiseItem(
@@ -233,6 +253,10 @@ class OrganizerMerchandiseController extends GetxController {
     if (organization.value == null) return;
 
     try {
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        return;
+      }
       await _firestore
           .collection('organizations')
           .doc(organization.value!.orgId)
@@ -255,6 +279,10 @@ class OrganizerMerchandiseController extends GetxController {
     if (organization.value == null) return;
 
     try {
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        return;
+      }
       await _firestore
           .collection('organizations')
           .doc(organization.value!.orgId)

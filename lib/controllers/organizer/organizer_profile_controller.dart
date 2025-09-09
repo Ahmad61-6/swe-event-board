@@ -1,11 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
+import 'package:event_board/data/services/network_service.dart';
 
 import '../../data/model/organization.dart';
 import '../auth_controller.dart';
 
 class OrganizerProfileController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final NetworkService _networkService = Get.find();
   final Rx<Organization?> organization = Rx<Organization?>(null);
   final RxBool isLoading = true.obs;
 
@@ -18,6 +20,11 @@ class OrganizerProfileController extends GetxController {
   Future<void> loadOrganizationProfile() async {
     try {
       isLoading.value = true;
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        isLoading.value = false;
+        return;
+      }
       final user = Get.find<AuthController>().user.value;
       if (user == null) {
         isLoading.value = false;
@@ -45,6 +52,10 @@ class OrganizerProfileController extends GetxController {
 
   Future<void> updateOrganization(Organization org) async {
     try {
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        return;
+      }
       await _firestore
           .collection('organizations')
           .doc(org.orgId)

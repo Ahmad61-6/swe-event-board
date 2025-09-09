@@ -48,7 +48,9 @@ class Event {
       endAt: (json['endAt'] as Timestamp).toDate(),
       venue: json['venue'] ?? '',
       meetLink: json['meetLink'] ?? '',
-      price: (json['price'] ?? 0).toDouble(),
+      price: (json['price'] is int)
+          ? (json['price'] as int).toDouble()
+          : (json['price'] ?? 0).toDouble(),
       capacity: json['capacity'] ?? 0,
       createdByUid: json['createdByUid'] ?? '',
       approved: json['approved'] ?? false,

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:event_board/data/services/network_service.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../data/model/enrollment.dart';
@@ -9,6 +10,7 @@ import '../auth_controller.dart';
 
 class EventDetailController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final NetworkService _networkService = Get.find();
 
   late Event event;
   Rx<Enrollment?> enrollment = Rx<Enrollment?>(null);
@@ -25,6 +27,10 @@ class EventDetailController extends GetxController {
 
   Future<void> _checkEnrollmentStatus() async {
     try {
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        return;
+      }
       final user = Get.find<AuthController>().user.value;
       if (user == null) return;
 
@@ -55,6 +61,11 @@ class EventDetailController extends GetxController {
   Future<void> enrollInEvent() async {
     try {
       isLoading.value = true;
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        isLoading.value = false;
+        return;
+      }
       final user = Get.find<AuthController>().user.value;
       if (user == null) return;
 
@@ -112,6 +123,11 @@ class EventDetailController extends GetxController {
   Future<void> cancelEnrollment() async {
     try {
       isLoading.value = true;
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        isLoading.value = false;
+        return;
+      }
 
       if (enrollment.value == null) return;
 

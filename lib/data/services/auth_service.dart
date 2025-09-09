@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get/get.dart';
+import 'package:event_board/data/services/network_service.dart';
 import 'package:get_storage/get_storage.dart';
 
 import '../../constants/app_constants.dart';
@@ -11,16 +15,21 @@ import '../model/student.dart';
 class AuthService extends GetxService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final GetStorage _storage = GetStorage();
+  final FirebaseStorage _storage = FirebaseStorage.instance;
+  final GetStorage _getStorage = GetStorage();
+  final NetworkService _networkService = Get.find();
 
   User? get currentUser => _auth.currentUser;
 
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
   Future<void> signOut() async {
+    if (!await _networkService.isConnected) {
+      throw Exception('No Internet Connection');
+    }
     await _auth.signOut();
-    _storage.remove(AppConstants.userProfileKey);
-    _storage.remove(AppConstants.userRoleKey);
+    _getStorage.remove(AppConstants.userProfileKey);
+    _getStorage.remove(AppConstants.userRoleKey);
   }
 
   Future<Map<String, dynamic>?> signInWithEmailAndPassword({
@@ -28,6 +37,9 @@ class AuthService extends GetxService {
     required String password,
   }) async {
     try {
+      if (!await _networkService.isConnected) {
+        throw Exception('No Internet Connection');
+      }
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
@@ -37,8 +49,8 @@ class AuthService extends GetxService {
         userCredential.user!.uid,
       );
       if (userData != null) {
-        _storage.write(AppConstants.userProfileKey, userData['profile']);
-        _storage.write(AppConstants.userRoleKey, userData['role']);
+        _getStorage.write(AppConstants.userProfileKey, userData['profile']);
+        _getStorage.write(AppConstants.userRoleKey, userData['role']);
       }
 
       return userData;
@@ -54,15 +66,30 @@ class AuthService extends GetxService {
     required String studentId,
     required String batch,
     required List<String> interests,
+    File? image,
   }) async {
     try {
+      if (!await _networkService.isConnected) {
+        throw Exception('No Internet Connection');
+      }
       UserCredential userCredential = await _auth
           .createUserWithEmailAndPassword(email: email, password: password);
+
+      String? profileImageUrl;
+      if (image != null) {
+        final ref = _storage
+            .ref()
+            .child('profile_images')
+            .child('${userCredential.user!.uid}.jpg');
+        await ref.putFile(image);
+        profileImageUrl = await ref.getDownloadURL();
+      }
 
       Student student = Student(
         uid: userCredential.user!.uid,
         displayName: fullName,
         email: email,
+        profileImageUrl: profileImageUrl,
         studentId: studentId,
         batch: batch,
         interests: interests,
@@ -77,8 +104,8 @@ class AuthService extends GetxService {
           .doc('profile')
           .set(student.toJson());
 
-      _storage.write(AppConstants.userProfileKey, student.toJson());
-      _storage.write(AppConstants.userRoleKey, AppConstants.roleStudent);
+      _getStorage.write(AppConstants.userProfileKey, student.toJson());
+      _getStorage.write(AppConstants.userRoleKey, AppConstants.roleStudent);
 
       return {'profile': student.toJson(), 'role': AppConstants.roleStudent};
     } catch (e) {
@@ -93,13 +120,26 @@ class AuthService extends GetxService {
     required String organizationName,
     required String organizationType,
     required String contactPhone,
-    String? logoUrl,
+    File? image,
   }) async {
     try {
+      if (!await _networkService.isConnected) {
+        throw Exception('No Internet Connection');
+      }
       UserCredential userCredential = await _auth
           .createUserWithEmailAndPassword(email: email, password: password);
 
       String orgId = _firestore.collection('organizations').doc().id;
+
+      String? logoUrl;
+      if (image != null) {
+        final ref = _storage
+            .ref()
+            .child('organization_logos')
+            .child('$orgId.jpg');
+        await ref.putFile(image);
+        logoUrl = await ref.getDownloadURL();
+      }
 
       Organization organization = Organization(
         orgId: orgId,
@@ -119,8 +159,8 @@ class AuthService extends GetxService {
           .doc(orgId)
           .set(organization.toJson());
 
-      _storage.write(AppConstants.userProfileKey, organization.toJson());
-      _storage.write(AppConstants.userRoleKey, AppConstants.roleOrganizer);
+      _getStorage.write(AppConstants.userProfileKey, organization.toJson());
+      _getStorage.write(AppConstants.userRoleKey, AppConstants.roleOrganizer);
 
       return {
         'profile': organization.toJson(),
@@ -137,6 +177,9 @@ class AuthService extends GetxService {
     required String adminCode,
   }) async {
     try {
+      if (!await _networkService.isConnected) {
+        throw Exception('No Internet Connection');
+      }
       if (adminCode != AppConstants.adminCode) {
         throw Exception('Invalid admin code');
       }
@@ -157,8 +200,8 @@ class AuthService extends GetxService {
           .doc('profile')
           .set(admin.toJson());
 
-      _storage.write(AppConstants.userProfileKey, admin.toJson());
-      _storage.write(AppConstants.userRoleKey, AppConstants.roleAdmin);
+      _getStorage.write(AppConstants.userProfileKey, admin.toJson());
+      _getStorage.write(AppConstants.userRoleKey, AppConstants.roleAdmin);
 
       return {'profile': admin.toJson(), 'role': AppConstants.roleAdmin};
     } catch (e) {
@@ -168,6 +211,9 @@ class AuthService extends GetxService {
 
   Future<Map<String, dynamic>?> _getUserData(String uid) async {
     try {
+      if (!await _networkService.isConnected) {
+        throw Exception('No Internet Connection');
+      }
       DocumentSnapshot studentDoc = await _firestore
           .collection('students')
           .doc(uid)

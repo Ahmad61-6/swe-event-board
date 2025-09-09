@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
+import 'package:event_board/data/services/network_service.dart';
 
 import '../auth_controller.dart';
 
@@ -31,6 +32,7 @@ class StudentNotification {
 
 class StudentNotificationsController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final NetworkService _networkService = Get.find();
 
   final RxList<StudentNotification> notifications = <StudentNotification>[].obs;
   final RxBool isLoading = true.obs;
@@ -46,6 +48,13 @@ class StudentNotificationsController extends GetxController {
 
   Future<void> _loadNotifications({bool refresh = false}) async {
     try {
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        if (refresh) {
+          isLoading.value = false;
+        }
+        return;
+      }
       if (refresh) {
         isLoading.value = true;
         _lastNotificationDoc = null;

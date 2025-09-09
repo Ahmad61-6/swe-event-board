@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
+import 'package:event_board/data/services/network_service.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 import '../../data/model/event.dart';
@@ -11,6 +12,7 @@ import '../auth_controller.dart';
 class OrganizerEventsController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
+  final NetworkService _networkService = Get.find();
 
   final Rx<Organization?> organization = Rx<Organization?>(null);
   final RxList<Event> events = <Event>[].obs;
@@ -30,6 +32,11 @@ class OrganizerEventsController extends GetxController {
   Future<void> _loadOrganizationProfile() async {
     try {
       isLoading.value = true;
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        isLoading.value = false;
+        return;
+      }
       final user = Get.find<AuthController>().user.value;
       if (user == null) {
         isLoading.value = false;
@@ -60,6 +67,10 @@ class OrganizerEventsController extends GetxController {
     if (organization.value == null) return;
 
     try {
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        return;
+      }
       if (refresh) {
         _lastEventDoc = null;
         events.clear();
@@ -99,6 +110,10 @@ class OrganizerEventsController extends GetxController {
 
   Future<String?> uploadBannerImage(File imageFile) async {
     try {
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        return null;
+      }
       final user = Get.find<AuthController>().user.value;
       if (user == null || organization.value == null) return null;
 
@@ -119,6 +134,11 @@ class OrganizerEventsController extends GetxController {
 
     try {
       isCreating.value = true;
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        isCreating.value = false;
+        return;
+      }
 
       final user = Get.find<AuthController>().user.value;
       if (user == null) return;
@@ -165,6 +185,11 @@ class OrganizerEventsController extends GetxController {
 
     try {
       isUpdating.value = true;
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        isUpdating.value = false;
+        return;
+      }
 
       await _firestore
           .collection('organizations')
@@ -211,6 +236,10 @@ class OrganizerEventsController extends GetxController {
     if (organization.value == null) return;
 
     try {
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        return;
+      }
       await _firestore
           .collection('organizations')
           .doc(organization.value!.orgId)

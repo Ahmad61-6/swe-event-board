@@ -1,11 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
+import 'package:event_board/data/services/network_service.dart';
 
 import '../../data/model/organization.dart';
 import '../../data/model/student.dart';
 
 class AdminUsersController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final NetworkService _networkService = Get.find();
 
   final RxList<Student> students = <Student>[].obs;
   final RxList<Organization> organizers = <Organization>[].obs;
@@ -23,6 +25,11 @@ class AdminUsersController extends GetxController {
 
   Future<void> loadUsers({bool refresh = false}) async {
     try {
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        isLoading.value = false;
+        return;
+      }
       if (refresh) {
         isLoading.value = true;
         _lastStudentDoc = null;
@@ -42,6 +49,9 @@ class AdminUsersController extends GetxController {
 
   Future<void> _loadStudents() async {
     try {
+      if (!await _networkService.isConnected) {
+        throw Exception('No Internet Connection');
+      }
       Query query = _firestore.collectionGroup('details').limit(_pageSize);
 
       if (_lastStudentDoc != null) {
@@ -66,6 +76,9 @@ class AdminUsersController extends GetxController {
 
   Future<void> _loadOrganizers() async {
     try {
+      if (!await _networkService.isConnected) {
+        throw Exception('No Internet Connection');
+      }
       Query query = _firestore
           .collection('organizations')
           .orderBy('createdAt', descending: true)
@@ -92,6 +105,10 @@ class AdminUsersController extends GetxController {
 
   Future<void> deleteUser(String uid, String userType) async {
     try {
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        return;
+      }
       if (userType == 'student') {
         await _firestore.collection('students').doc(uid).delete();
         students.removeWhere((student) => student.uid == uid);
