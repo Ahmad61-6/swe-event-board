@@ -27,7 +27,7 @@ class Admin {
       'uid': uid,
       'email': email,
       'profileImageUrl': profileImageUrl,
-      'createdAt': Timestamp.fromDate(createdAt),
+      'createdAt': createdAt,
     };
   }
 

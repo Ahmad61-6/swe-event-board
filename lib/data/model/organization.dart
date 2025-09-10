@@ -55,7 +55,7 @@ class Organization {
       'logoUrl': logoUrl,
       'bannerImageUrl': bannerImageUrl,
       'approved': approved,
-      'createdAt': Timestamp.fromDate(createdAt),
+      'createdAt': createdAt,
     };
   }
 }

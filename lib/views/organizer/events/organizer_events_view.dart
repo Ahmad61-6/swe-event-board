@@ -6,13 +6,15 @@ import 'package:intl/intl.dart';
 import '../../../controllers/organizer/organizer_events_controller.dart';
 import '../../../data/model/event.dart';
 import '../../../routes/app_routes.dart';
+import '../../student/event/event_detail_view.dart';
+import 'create_event_view.dart';
 
 class OrganizerEventsView extends StatelessWidget {
   final OrganizerEventsController controller = Get.put(
     OrganizerEventsController(),
   );
 
-  OrganizerEventsView({Key? key}) : super(key: key);
+  OrganizerEventsView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -61,116 +63,127 @@ class OrganizerEventsView extends StatelessWidget {
             );
           }
 
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: DataTable2(
-              columnSpacing: 12,
-              horizontalMargin: 12,
-              minWidth: 800,
-              headingRowColor: MaterialStateColor.resolveWith(
-                (states) => Theme.of(context).primaryColor.withOpacity(0.1),
-              ),
-              columns: const [
-                DataColumn2(label: Text('Event'), size: ColumnSize.L),
-                DataColumn2(label: Text('Date')),
-                DataColumn2(label: Text('Venue')),
-                DataColumn2(label: Text('Status')),
-                DataColumn2(label: Text('Enrollments')),
-                DataColumn2(label: Text('Actions')),
-              ],
-              rows: controller.events.map((event) {
-                return DataRow2(
-                  cells: [
-                    DataCell(
-                      SizedBox(
-                        width: 200,
-                        child: Text(
-                          event.title,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Container(
+              width: MediaQuery.of(
+                context,
+              ).size.width, // Ensures that we respect screen width
+              child: DataTable2(
+                columnSpacing: 12,
+                horizontalMargin: 12,
+                minWidth: 600, // Reducing the min width to prevent overflow
+                headingRowColor: WidgetStateColor.resolveWith(
+                  (states) =>
+                      Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                ),
+                columns: [
+                  DataColumn2(
+                    label: const Text('Event'),
+                    size: ColumnSize.L,
+                    numeric: false,
+                  ),
+                  DataColumn2(label: const Text('Date'), numeric: false),
+                  DataColumn2(label: const Text('Venue'), numeric: false),
+                  DataColumn2(label: const Text('Status'), numeric: false),
+                  DataColumn2(label: const Text('Enrollments'), numeric: false),
+                  DataColumn2(label: const Text('Actions'), numeric: false),
+                ],
+                rows: controller.events.map((event) {
+                  return DataRow2(
+                    onTap: () => Get.to(() => EventDetailView(event: event)),
+                    cells: [
+                      DataCell(
+                        SizedBox(
+                          width: 180, // Adjust width as necessary
+                          child: Text(
+                            event.title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ),
-                    ),
-                    DataCell(
-                      Text(DateFormat('MMM dd, yyyy').format(event.startAt)),
-                    ),
-                    DataCell(
-                      SizedBox(
-                        width: 120,
-                        child: Text(
-                          event.venue,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                      DataCell(
+                        Text(DateFormat('MMM dd, yyyy').format(event.startAt)),
+                      ),
+                      DataCell(
+                        SizedBox(
+                          width: 120,
+                          child: Text(
+                            event.venue,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ),
-                    ),
-                    DataCell(
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: event.approved
-                              ? Colors.green.withOpacity(0.1)
-                              : event.conflict
-                              ? Colors.red.withOpacity(0.1)
-                              : Colors.orange.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          event.approved
-                              ? 'Approved'
-                              : event.conflict
-                              ? 'Conflict'
-                              : 'Pending',
-                          style: TextStyle(
-                            fontSize: 12,
+                      DataCell(
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
                             color: event.approved
-                                ? Colors.green
+                                ? Colors.green.withValues(alpha: 0.1)
                                 : event.conflict
-                                ? Colors.red
-                                : Colors.orange,
-                            fontWeight: FontWeight.w500,
+                                ? Colors.red.withValues(alpha: 0.1)
+                                : Colors.orange.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            event.approved
+                                ? 'Approved'
+                                : event.conflict
+                                ? 'Conflict'
+                                : 'Pending',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: event.approved
+                                  ? Colors.green
+                                  : event.conflict
+                                  ? Colors.red
+                                  : Colors.orange,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    DataCell(Text('${event.enrolledCount}/${event.capacity}')),
-                    DataCell(
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            onPressed: () {
-                              // TODO: View event details
-                            },
-                            icon: const Icon(Icons.visibility, size: 20),
-                            tooltip: 'View',
-                          ),
-                          IconButton(
-                            onPressed: () {
-                              // TODO: Edit event
-                            },
-                            icon: const Icon(Icons.edit, size: 20),
-                            tooltip: 'Edit',
-                          ),
-                          IconButton(
-                            onPressed: () => _showNotifyDialog(event),
-                            icon: const Icon(Icons.notifications, size: 20),
-                            tooltip: 'Notify Enrollments',
-                          ),
-                          IconButton(
-                            onPressed: () => _showDeleteDialog(event),
-                            icon: const Icon(Icons.delete, size: 20),
-                            tooltip: 'Delete',
-                          ),
-                        ],
+                      DataCell(
+                        Text('${event.enrolledCount}/${event.capacity}'),
                       ),
-                    ),
-                  ],
-                );
-              }).toList(),
+                      DataCell(
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              onPressed: () =>
+                                  Get.to(() => EventDetailView(event: event)),
+                              icon: const Icon(Icons.visibility, size: 20),
+                              tooltip: 'View',
+                            ),
+                            IconButton(
+                              onPressed: () =>
+                                  Get.to(() => CreateEventView(event: event)),
+                              icon: const Icon(Icons.edit, size: 20),
+                              tooltip: 'Edit',
+                            ),
+                            IconButton(
+                              onPressed: () => _showNotifyDialog(event),
+                              icon: const Icon(Icons.notifications, size: 20),
+                              tooltip: 'Notify Enrollments',
+                            ),
+                            IconButton(
+                              onPressed: () => _showDeleteDialog(event),
+                              icon: const Icon(Icons.delete, size: 20),
+                              tooltip: 'Delete',
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                }).toList(),
+              ),
             ),
           );
         }),

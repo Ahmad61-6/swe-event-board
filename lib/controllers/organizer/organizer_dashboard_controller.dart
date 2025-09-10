@@ -24,9 +24,9 @@ class OrganizerDashboardController extends GetxController {
   final RxBool isLoadingKPIs = true.obs;
 
   @override
-  void onInit() {
-    super.onInit();
-    _loadOrganizationProfile();
+  void onReady() {
+    super.onReady();
+    refreshData();
   }
 
   Future<void> _loadOrganizationProfile() async {

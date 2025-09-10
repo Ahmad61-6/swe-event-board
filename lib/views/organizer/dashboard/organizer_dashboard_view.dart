@@ -6,12 +6,23 @@ import 'package:intl/intl.dart';
 import '../../../controllers/organizer/organizer_dashboard_controller.dart';
 import '../../../routes/app_routes.dart';
 
-class OrganizerDashboardView extends StatelessWidget {
+class OrganizerDashboardView extends StatefulWidget {
+  const OrganizerDashboardView({super.key});
+
+  @override
+  State<OrganizerDashboardView> createState() => _OrganizerDashboardViewState();
+}
+
+class _OrganizerDashboardViewState extends State<OrganizerDashboardView> {
   final OrganizerDashboardController controller = Get.put(
     OrganizerDashboardController(),
   );
 
-  OrganizerDashboardView({super.key});
+  @override
+  void initState() {
+    super.initState();
+    controller.refreshData();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -200,27 +211,28 @@ class OrganizerDashboardView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(icon, color: color),
-                ),
-              ],
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, color: color),
             ),
             const SizedBox(height: 12),
-            Text(
-              value,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                value,
+                style:
+                    const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
             ),
             const SizedBox(height: 4),
             Text(
               title,
               style: const TextStyle(fontSize: 14, color: Colors.grey),
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
@@ -351,29 +363,18 @@ class OrganizerDashboardView extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 16),
-              DataTable2(
-                columns: const [
-                  DataColumn2(label: Text('Event')),
-                  DataColumn2(label: Text('Date')),
-                  DataColumn2(label: Text('Enrollments')),
-                ],
-                rows: controller.recentEvents.map((event) {
-                  return DataRow2(
-                    cells: [
-                      DataCell(
-                        Text(
-                          event.title,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      DataCell(
-                        Text(DateFormat('MMM dd').format(event.startAt)),
-                      ),
-                      DataCell(Text('${event.enrolledCount}')),
-                    ],
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: controller.recentEvents.length,
+                itemBuilder: (context, index) {
+                  final event = controller.recentEvents[index];
+                  return ListTile(
+                    title: Text(event.title),
+                    subtitle: Text(DateFormat('MMM dd, yyyy').format(event.startAt)),
+                    trailing: Text('${event.enrolledCount} enrolled'),
                   );
-                }).toList(),
+                },              
               ),
             ],
           ),

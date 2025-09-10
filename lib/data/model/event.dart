@@ -77,7 +77,7 @@ class Event {
       'approved': approved,
       'enrolledCount': enrolledCount,
       'conflict': conflict,
-      'createdAt': Timestamp.fromDate(createdAt),
+      'createdAt': createdAt,
     };
   }
 }

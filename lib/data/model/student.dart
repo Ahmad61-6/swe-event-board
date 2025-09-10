@@ -47,7 +47,7 @@ class Student {
       'batch': batch,
       'interests': interests,
       'fcmTokens': fcmTokens,
-      'createdAt': Timestamp.fromDate(createdAt),
+      'createdAt': createdAt,
     };
   }
 
