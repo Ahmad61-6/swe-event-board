@@ -65,124 +65,61 @@ class OrganizerEventsView extends StatelessWidget {
 
           return SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            child: Container(
-              width: MediaQuery.of(
-                context,
-              ).size.width, // Ensures that we respect screen width
-              child: DataTable2(
-                columnSpacing: 12,
-                horizontalMargin: 12,
-                minWidth: 600, // Reducing the min width to prevent overflow
-                headingRowColor: WidgetStateColor.resolveWith(
-                  (states) =>
-                      Theme.of(context).primaryColor.withValues(alpha: 0.1),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: MediaQuery.of(context).size.width, // Limit the width
+              ),
+              child: PaginatedDataTable2(
+                headingRowDecoration: BoxDecoration(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.1),
                 ),
+                columnSpacing: 10,
+                horizontalMargin: 8,
+                minWidth: 1000, // Adjusted minWidth to avoid overflow
                 columns: [
                   DataColumn2(
                     label: const Text('Event'),
                     size: ColumnSize.L,
                     numeric: false,
                   ),
-                  DataColumn2(label: const Text('Date'), numeric: false),
-                  DataColumn2(label: const Text('Venue'), numeric: false),
-                  DataColumn2(label: const Text('Status'), numeric: false),
-                  DataColumn2(label: const Text('Enrollments'), numeric: false),
-                  DataColumn2(label: const Text('Actions'), numeric: false),
+                  DataColumn2(
+                    label: const Text('Date'),
+                    size: ColumnSize.S,
+                    numeric: false,
+                  ),
+                  DataColumn2(
+                    label: const Text('Venue'),
+                    size: ColumnSize.S,
+                    numeric: false,
+                  ),
+                  DataColumn2(
+                    label: const Text('Status'),
+                    size: ColumnSize.S,
+                    numeric: false,
+                  ),
+                  DataColumn2(
+                    label: const Text('Enrollments'),
+                    size: ColumnSize.S,
+                    numeric: true,
+                  ),
+                  DataColumn2(
+                    label: const Text('Actions'),
+                    size: ColumnSize.M,
+                    numeric: false,
+                  ),
                 ],
-                rows: controller.events.map((event) {
-                  return DataRow2(
-                    onTap: () => Get.to(() => EventDetailView(event: event)),
-                    cells: [
-                      DataCell(
-                        SizedBox(
-                          width: 180, // Adjust width as necessary
-                          child: Text(
-                            event.title,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ),
-                      DataCell(
-                        Text(DateFormat('MMM dd, yyyy').format(event.startAt)),
-                      ),
-                      DataCell(
-                        SizedBox(
-                          width: 120,
-                          child: Text(
-                            event.venue,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ),
-                      DataCell(
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: event.approved
-                                ? Colors.green.withValues(alpha: 0.1)
-                                : event.conflict
-                                ? Colors.red.withValues(alpha: 0.1)
-                                : Colors.orange.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            event.approved
-                                ? 'Approved'
-                                : event.conflict
-                                ? 'Conflict'
-                                : 'Pending',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: event.approved
-                                  ? Colors.green
-                                  : event.conflict
-                                  ? Colors.red
-                                  : Colors.orange,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ),
-                      DataCell(
-                        Text('${event.enrolledCount}/${event.capacity}'),
-                      ),
-                      DataCell(
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              onPressed: () =>
-                                  Get.to(() => EventDetailView(event: event)),
-                              icon: const Icon(Icons.visibility, size: 20),
-                              tooltip: 'View',
-                            ),
-                            IconButton(
-                              onPressed: () =>
-                                  Get.to(() => CreateEventView(event: event)),
-                              icon: const Icon(Icons.edit, size: 20),
-                              tooltip: 'Edit',
-                            ),
-                            IconButton(
-                              onPressed: () => _showNotifyDialog(event),
-                              icon: const Icon(Icons.notifications, size: 20),
-                              tooltip: 'Notify Enrollments',
-                            ),
-                            IconButton(
-                              onPressed: () => _showDeleteDialog(event),
-                              icon: const Icon(Icons.delete, size: 20),
-                              tooltip: 'Delete',
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  );
-                }).toList(),
+                source: EventDataSource(
+                  controller.events,
+                  context,
+                  onView: (event) =>
+                      Get.to(() => EventDetailView(event: event)),
+                  onEdit: (event) =>
+                      Get.to(() => CreateEventView(event: event)),
+                  onNotify: _showNotifyDialog,
+                  onDelete: _showDeleteDialog,
+                ),
               ),
             ),
           );
@@ -226,4 +163,131 @@ class OrganizerEventsView extends StatelessWidget {
       ],
     );
   }
+}
+
+class EventDataSource extends DataTableSource {
+  final List<Event> events;
+  final BuildContext context;
+  final Function(Event) onView;
+  final Function(Event) onEdit;
+  final Function(Event) onNotify;
+  final Function(Event) onDelete;
+
+  EventDataSource(
+    this.events,
+    this.context, {
+    required this.onView,
+    required this.onEdit,
+    required this.onNotify,
+    required this.onDelete,
+  });
+
+  @override
+  DataRow getRow(int index) {
+    final event = events[index];
+
+    // Check if the row has data
+    final hasData =
+        event.title.isNotEmpty &&
+        event.startAt != null &&
+        event.venue.isNotEmpty;
+
+    return DataRow2(
+      cells: [
+        DataCell(
+          SizedBox(
+            width: 180, // Adjust width as necessary
+            child: Text(
+              event.title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ),
+        DataCell(Text(DateFormat('MMM dd, yyyy').format(event.startAt))),
+        DataCell(
+          SizedBox(
+            width: 120,
+            child: Text(
+              event.venue,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ),
+        DataCell(
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: event.approved
+                  ? Colors.green.withValues(alpha: 0.1)
+                  : event.conflict
+                  ? Colors.red.withValues(alpha: 0.1)
+                  : Colors.orange.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              event.approved
+                  ? 'Approved'
+                  : event.conflict
+                  ? 'Conflict'
+                  : 'Pending',
+              style: TextStyle(
+                fontSize: 12,
+                color: event.approved
+                    ? Colors.green
+                    : event.conflict
+                    ? Colors.red
+                    : Colors.orange,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ),
+        DataCell(Text('${event.enrolledCount}/${event.capacity}')),
+        DataCell(
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                onPressed: () => onView(event),
+                icon: const Icon(Icons.visibility, size: 20),
+                tooltip: 'View',
+              ),
+              IconButton(
+                onPressed: () => onEdit(event),
+                icon: const Icon(Icons.edit, size: 20),
+                tooltip: 'Edit',
+              ),
+              IconButton(
+                onPressed: () => onNotify(event),
+                icon: const Icon(Icons.notifications, size: 20),
+                tooltip: 'Notify Enrollments',
+              ),
+              IconButton(
+                onPressed: () => onDelete(event),
+                icon: const Icon(Icons.delete, size: 20),
+                tooltip: 'Delete',
+              ),
+            ],
+          ),
+        ),
+      ],
+      // Apply a border only for rows that have data
+      decoration: BoxDecoration(
+        border: hasData
+            ? Border(bottom: BorderSide(color: Colors.grey[300]!))
+            : null,
+      ),
+    );
+  }
+
+  @override
+  bool get isRowCountApproximate => false;
+
+  @override
+  int get rowCount => events.length;
+
+  @override
+  int get selectedRowCount => 0;
 }
