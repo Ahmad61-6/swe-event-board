@@ -1,4 +1,3 @@
-import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -88,7 +87,7 @@ class _OrganizerDashboardViewState extends State<OrganizerDashboardView> {
                 width: 60,
                 height: 60,
                 decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor.withOpacity(0.1),
+                  color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: Icon(
@@ -123,8 +122,8 @@ class _OrganizerDashboardViewState extends State<OrganizerDashboardView> {
                           ),
                           decoration: BoxDecoration(
                             color: org.approved
-                                ? Colors.green.withOpacity(0.1)
-                                : Colors.orange.withOpacity(0.1),
+                                ? Colors.green.withValues(alpha: 0.1)
+                                : Colors.orange.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
@@ -188,7 +187,7 @@ class _OrganizerDashboardViewState extends State<OrganizerDashboardView> {
             child: _buildKPIWidget(
               title: 'Revenue',
               value:
-                  '₹${NumberFormat('#,##0').format(controller.totalRevenue.value)}',
+                  'BDT${NumberFormat('#,##0').format(controller.totalRevenue.value)}',
               icon: Icons.attach_money,
               color: Colors.orange,
             ),
@@ -214,7 +213,7 @@ class _OrganizerDashboardViewState extends State<OrganizerDashboardView> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(icon, color: color),
@@ -224,8 +223,10 @@ class _OrganizerDashboardViewState extends State<OrganizerDashboardView> {
               fit: BoxFit.scaleDown,
               child: Text(
                 value,
-                style:
-                    const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             const SizedBox(height: 4),
@@ -294,7 +295,7 @@ class _OrganizerDashboardViewState extends State<OrganizerDashboardView> {
       style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.all(16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        backgroundColor: color.withOpacity(0.1),
+        backgroundColor: color.withValues(alpha: 0.1),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -371,10 +372,12 @@ class _OrganizerDashboardViewState extends State<OrganizerDashboardView> {
                   final event = controller.recentEvents[index];
                   return ListTile(
                     title: Text(event.title),
-                    subtitle: Text(DateFormat('MMM dd, yyyy').format(event.startAt)),
+                    subtitle: Text(
+                      DateFormat('MMM dd, yyyy').format(event.startAt),
+                    ),
                     trailing: Text('${event.enrolledCount} enrolled'),
                   );
-                },              
+                },
               ),
             ],
           ),

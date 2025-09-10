@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../routes/app_routes.dart';
-
 class UnauthorizedView extends StatelessWidget {
   const UnauthorizedView({super.key});
 
@@ -30,8 +28,8 @@ class UnauthorizedView extends StatelessWidget {
               ),
               const SizedBox(height: 32),
               ElevatedButton(
-                onPressed: () => Get.offAllNamed(AppRoutes.initial),
-                child: const Text('Go to Home'),
+                onPressed: () => Get.back(),
+                child: const Text('Go back'),
               ),
             ],
           ),

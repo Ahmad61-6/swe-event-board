@@ -187,12 +187,12 @@ class EventDataSource extends DataTableSource {
     final event = events[index];
 
     // Check if the row has data
-    final hasData =
-        event.title.isNotEmpty &&
-        event.startAt != null &&
-        event.venue.isNotEmpty;
+    final hasData = event.title.isNotEmpty && event.venue.isNotEmpty;
 
     return DataRow2(
+      onTap: () {
+        Get.toNamed(AppRoutes.eventDetail, arguments: event);
+      },
       cells: [
         DataCell(
           SizedBox(
@@ -273,7 +273,6 @@ class EventDataSource extends DataTableSource {
           ),
         ),
       ],
-      // Apply a border only for rows that have data
       decoration: BoxDecoration(
         border: hasData
             ? Border(bottom: BorderSide(color: Colors.grey[300]!))

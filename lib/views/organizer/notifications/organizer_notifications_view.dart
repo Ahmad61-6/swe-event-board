@@ -47,8 +47,7 @@ class OrganizerNotificationsView extends StatelessWidget {
           itemCount: controller.notifications.length,
           itemBuilder: (context, index) {
             final notification = controller.notifications[index];
-            return Obx(
-              () => Container(
+            return Container(
                 color: notification.isRead
                     ? Colors.transparent
                     : Theme.of(context).primaryColor.withOpacity(0.05),
@@ -89,8 +88,7 @@ class OrganizerNotificationsView extends StatelessWidget {
                         ],
                   ),
                 ),
-              ),
-            );
+              );
           },
         );
       }),
