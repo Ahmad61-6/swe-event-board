@@ -1,4 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:event_board/views/student/event/event_detail_view.dart';
+import 'package:event_board/views/student/organization_detail_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -33,35 +35,30 @@ class StudentDashboardView extends StatelessWidget {
           ),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await controller.refreshUpcomingEvents();
-        },
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Carousel Section
-                _buildCarouselSection(),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Carousel Section
+              _buildCarouselSection(),
 
-                const SizedBox(height: 24),
+              const SizedBox(height: 24),
 
-                // Category Chips
-                _buildCategoryChips(),
+              // Category Chips
+              _buildCategoryChips(),
 
-                const SizedBox(height: 24),
+              const SizedBox(height: 24),
 
-                // Upcoming Events
-                _buildUpcomingEventsSection(),
+              // Upcoming Events
+              _buildUpcomingEventsSection(),
 
-                const SizedBox(height: 24),
+              const SizedBox(height: 24),
 
-                // Clubs to Join
-                _buildClubsToJoinSection(),
-              ],
-            ),
+              // Clubs to Join
+              _buildClubsToJoinSection(),
+            ],
           ),
         ),
       ),
@@ -70,10 +67,6 @@ class StudentDashboardView extends StatelessWidget {
 
   Widget _buildCarouselSection() {
     return Obx(() {
-      if (controller.isLoadingCarousel.value) {
-        return _buildLoadingIndicator();
-      }
-
       if (controller.carouselEvents.isEmpty) {
         return _buildEmptyState('No upcoming events');
       }
@@ -175,10 +168,7 @@ class StudentDashboardView extends StatelessWidget {
           Material(
             color: Colors.transparent,
             child: InkWell(
-              onTap: () => Get.toNamed(
-                '${AppRoutes.eventDetail}?eventId=${event.eventId}',
-                arguments: event,
-              ),
+              onTap: () => Get.to(EventDetailView(event: event)),
             ),
           ),
         ],
@@ -238,11 +228,6 @@ class StudentDashboardView extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         Obx(() {
-          if (controller.isLoadingUpcoming.value &&
-              controller.upcomingEvents.isEmpty) {
-            return _buildLoadingIndicator();
-          }
-
           if (controller.upcomingEvents.isEmpty) {
             return _buildEmptyState('No upcoming events');
           }
@@ -263,7 +248,10 @@ class StudentDashboardView extends StatelessWidget {
             itemCount: filteredEvents.length,
             separatorBuilder: (_, __) => const SizedBox(height: 16),
             itemBuilder: (context, index) {
-              return EventCardWidget(event: filteredEvents[index]);
+              final event = filteredEvents[index];
+              return GestureDetector(
+                  onTap: () => Get.to(EventDetailView(event: event)),
+                  child: EventCardWidget(event: event));
             },
           );
         }),
@@ -281,11 +269,6 @@ class StudentDashboardView extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         Obx(() {
-          if (controller.isLoadingClubs.value &&
-              controller.clubsToJoin.isEmpty) {
-            return _buildLoadingIndicator();
-          }
-
           if (controller.clubsToJoin.isEmpty) {
             return _buildEmptyState('No clubs available');
           }
@@ -296,12 +279,18 @@ class StudentDashboardView extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               itemCount: controller.clubsToJoin.length,
               itemBuilder: (context, index) {
+                final organization = controller.clubsToJoin[index];
                 return Padding(
                   padding: EdgeInsets.only(
                     right: index == controller.clubsToJoin.length - 1 ? 0 : 16,
                   ),
-                  child: OrganizationCardWidget(
-                    organization: controller.clubsToJoin[index],
+                  child: GestureDetector(
+                    onTap: () => Get.to(OrganizationDetailView(
+                      organization: organization,
+                    )),
+                    child: OrganizationCardWidget(
+                      organization: organization,
+                    ),
                   ),
                 );
               },
@@ -309,15 +298,6 @@ class StudentDashboardView extends StatelessWidget {
           );
         }),
       ],
-    );
-  }
-
-  Widget _buildLoadingIndicator() {
-    return const Center(
-      child: Padding(
-        padding: EdgeInsets.all(32.0),
-        child: CircularProgressIndicator(),
-      ),
     );
   }
 

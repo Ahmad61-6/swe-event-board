@@ -1,3 +1,4 @@
+import 'package:event_board/views/student/event/event_detail_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -17,56 +18,46 @@ class StudentEnrollmentsView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('My Enrollments')),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await controller.refreshEnrollments();
-        },
-        child: Obx(() {
-          if (controller.isLoading.value && controller.enrollments.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (controller.enrollments.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.event_busy, size: 64, color: Colors.grey[400]),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'No enrollments yet',
-                    style: TextStyle(fontSize: 18, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Browse and enroll in events',
-                    style: TextStyle(fontSize: 14, color: Colors.grey),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: controller.enrollments.length + 1,
-            itemBuilder: (context, index) {
-              if (index == controller.enrollments.length) {
-                // Loading indicator for pagination
-                return const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              }
-
-              final enrollment = controller.enrollments[index];
-              final event = controller.getEventForEnrollment(enrollment);
-
-              return _buildEnrollmentCard(context, enrollment, event);
-            },
+      body: Obx(() {
+        if (controller.enrollments.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.event_busy, size: 64, color: Colors.grey[400]),
+                const SizedBox(height: 16),
+                const Text(
+                  'No enrollments yet',
+                  style: TextStyle(fontSize: 18, color: Colors.grey),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Browse and enroll in events',
+                  style: TextStyle(fontSize: 14, color: Colors.grey),
+                ),
+              ],
+            ),
           );
-        }),
-      ),
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: controller.enrollments.length,
+          itemBuilder: (context, index) {
+            final enrollment = controller.enrollments[index];
+            final event = controller.getEventForEnrollment(enrollment);
+
+            return GestureDetector(
+              onTap: () {
+                if (event != null) {
+                  Get.to(EventDetailView(event: event));
+                }
+              },
+              child: _buildEnrollmentCard(context, enrollment, event),
+            );
+          },
+        );
+      }),
     );
   }
 
@@ -153,10 +144,10 @@ class StudentEnrollmentsView extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: enrollment.status == 'checked_in'
-                        ? Colors.green.withValues(alpha: 0.1)
+                        ? Colors.green.withAlpha(30)
                         : enrollment.status == 'cancelled'
-                        ? Colors.red.withValues(alpha: 0.1)
-                        : Colors.blue.withValues(alpha: 0.1),
+                            ? Colors.red.withAlpha(30)
+                            : Colors.blue.withAlpha(30),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -166,8 +157,8 @@ class StudentEnrollmentsView extends StatelessWidget {
                       color: enrollment.status == 'checked_in'
                           ? Colors.green
                           : enrollment.status == 'cancelled'
-                          ? Colors.red
-                          : Colors.blue,
+                              ? Colors.red
+                              : Colors.blue,
                       fontWeight: FontWeight.w500,
                     ),
                   ),

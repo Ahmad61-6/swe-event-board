@@ -14,21 +14,18 @@ import '../views/auth/signup/organizer_signup_view.dart';
 import '../views/auth/signup/student_signup_view.dart';
 import '../views/onboarding/onboarding_view.dart';
 import '../views/organizer/events/create_event_view.dart';
-import '../views/organizer/organizer_home_view.dart';
 import '../views/organizer/notifications/organizer_notifications_view.dart';
+import '../views/organizer/organizer_home_view.dart';
 import '../views/organizer/profile/organizer_profile_view.dart';
 import '../views/shared/unauthorized_view.dart';
 import '../views/student/event/event_detail_view.dart';
-import '../views/student/student_home_view.dart';
 import '../views/student/profile/student_profile_view.dart';
+import '../views/student/student_home_view.dart';
 import 'app_routes.dart';
 
 class AppPages {
   static final routes = [
-    GetPage(
-      name: AppRoutes.onboarding,
-      page: () => const OnboardingView(),
-    ),
+    GetPage(name: AppRoutes.onboarding, page: () => const OnboardingView()),
     GetPage(
       name: AppRoutes.initial,
       page: () => const RoleSelectionView(),
@@ -115,7 +112,7 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.eventDetail,
-      page: () => EventDetailView(),
+      page: () => EventDetailView(event: Get.arguments),
       binding: AuthBinding(),
       middlewares: [StudentGuard()],
     ),
