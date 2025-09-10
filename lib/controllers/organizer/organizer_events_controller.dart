@@ -1,9 +1,10 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:get/get.dart';
+import 'package:event_board/controllers/organizer/organizer_dashboard_controller.dart';
 import 'package:event_board/data/services/network_service.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:get/get.dart';
 
 import '../../data/model/event.dart';
 import '../../data/model/organization.dart';
@@ -51,61 +52,60 @@ class OrganizerEventsController extends GetxController {
 
       if (snapshot.docs.isNotEmpty) {
         organization.value = Organization.fromJson(
-            snapshot.docs.first.data() as Map<String, dynamic>);
-        await loadEvents(refresh: true);
+          snapshot.docs.first.data() as Map<String, dynamic>,
+        );
+        _listenToEvents();
       } else {
         Get.snackbar('Error', 'Organization profile not found.');
       }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to load organization profile: ${e.toString()}');
+      Get.snackbar(
+        'Error',
+        'Failed to load organization profile: ${e.toString()}',
+      );
     } finally {
       isLoading.value = false;
     }
   }
 
-  Future<void> loadEvents({bool refresh = false}) async {
+  void _listenToEvents() {
     if (organization.value == null) return;
 
-    try {
-      if (!await _networkService.isConnected) {
-        Get.snackbar('No Internet', 'Please check your internet connection.');
-        return;
-      }
-      if (refresh) {
-        _lastEventDoc = null;
-        events.clear();
-      }
+    _firestore
+        .collection('organizations')
+        .doc(organization.value!.orgId)
+        .collection('events')
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .listen(
+          (snapshot) {
+            if (snapshot.docs.isNotEmpty) {
+              List<Event> newEvents = snapshot.docs
+                  .map(
+                    (doc) => Event.fromJson(doc.data() as Map<String, dynamic>),
+                  )
+                  .toList();
+              events.value = newEvents;
 
-      Query query = _firestore
-          .collection('organizations')
-          .doc(organization.value!.orgId)
-          .collection('events')
-          .orderBy('createdAt', descending: true);
+              // Update dashboard controller if it exists
+              try {
+                final dashboardController =
+                    Get.find<OrganizerDashboardController>();
+                dashboardController.refreshData();
+              } catch (e) {
+                // Dashboard controller might not be initialized
+              }
+            }
+          },
+          onError: (e) {
+            Get.snackbar('Error', 'Failed to load events: ${e.toString()}');
+          },
+        );
+  }
 
-      if (_lastEventDoc != null) {
-        query = query.startAfterDocument(_lastEventDoc!);
-      }
-
-      query = query.limit(_pageSize);
-
-      QuerySnapshot snapshot = await query.get();
-
-      if (snapshot.docs.isNotEmpty) {
-        _lastEventDoc = snapshot.docs.last;
-
-        List<Event> newEvents = snapshot.docs
-            .map((doc) => Event.fromJson(doc.data() as Map<String, dynamic>))
-            .toList();
-
-        if (refresh) {
-          events.value = newEvents;
-        } else {
-          events.addAll(newEvents);
-        }
-      }
-    } catch (e) {
-      Get.snackbar('Error', 'Failed to load events: ${e.toString()}');
-    }
+  Future<void> loadEvents({bool refresh = false}) async {
+    // This function is no longer needed as we are using a stream.
+    // You can keep it for pagination if you want to implement it later.
   }
 
   Future<String?> uploadBannerImage(File imageFile) async {
@@ -118,7 +118,8 @@ class OrganizerEventsController extends GetxController {
       if (user == null || organization.value == null) return null;
 
       final storageRef = _storage.ref(
-          'organizations/${organization.value!.orgId}/event_banners/${DateTime.now().millisecondsSinceEpoch}.jpg');
+        'organizations/${organization.value!.orgId}/event_banners/${DateTime.now().millisecondsSinceEpoch}.jpg',
+      );
 
       UploadTask uploadTask = storageRef.putFile(imageFile);
       TaskSnapshot snapshot = await uploadTask;
@@ -157,7 +158,7 @@ class OrganizerEventsController extends GetxController {
         price: event.price,
         capacity: event.capacity,
         createdByUid: user.uid,
-        approved: false,
+        approvalStatus: 'pending', // Set to pending initially
         enrolledCount: 0,
         conflict: false,
         createdAt: DateTime.now(),
@@ -197,9 +198,9 @@ class OrganizerEventsController extends GetxController {
           .collection('events')
           .doc(event.eventId)
           .update({
-        ...event.toJson(),
-        'approved': false,
-      });
+            ...event.toJson(),
+            'approvalStatus': 'pending', // Reset to pending when updated
+          });
 
       final index = events.indexWhere((e) => e.eventId == event.eventId);
       if (index != -1) {
@@ -216,7 +217,7 @@ class OrganizerEventsController extends GetxController {
           price: event.price,
           capacity: event.capacity,
           createdByUid: event.createdByUid,
-          approved: false, // Reset approval status
+          approvalStatus: 'pending', // Reset approval status
           enrolledCount: event.enrolledCount,
           conflict: event.conflict,
           createdAt: event.createdAt,
@@ -224,7 +225,9 @@ class OrganizerEventsController extends GetxController {
       }
 
       Get.snackbar(
-          'Success', 'Event updated successfully. Awaiting re-approval.');
+        'Success',
+        'Event updated successfully. Awaiting re-approval.',
+      );
     } catch (e) {
       Get.snackbar('Error', 'Failed to update event: ${e.toString()}');
     } finally {

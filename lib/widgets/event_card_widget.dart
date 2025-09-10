@@ -12,6 +12,24 @@ class EventCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Determine status text and color based on approvalStatus
+    String statusText;
+    Color statusColor;
+
+    switch (event.approvalStatus) {
+      case 'approved':
+        statusText = 'Approved';
+        statusColor = Colors.green;
+        break;
+      case 'rejected':
+        statusText = 'Rejected';
+        statusColor = Colors.red;
+        break;
+      default:
+        statusText = 'Pending';
+        statusColor = Colors.orange;
+    }
+
     return Card(
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -61,13 +79,36 @@ class EventCardWidget extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    event.type,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Theme.of(context).primaryColor,
-                      fontWeight: FontWeight.w500,
-                    ),
+                  Row(
+                    children: [
+                      Text(
+                        event.type,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).primaryColor,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const Spacer(),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: statusColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          statusText,
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: statusColor,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 8),
                   Row(

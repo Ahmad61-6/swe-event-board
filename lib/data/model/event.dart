@@ -13,7 +13,8 @@ class Event {
   final double price;
   final int capacity;
   final String createdByUid;
-  final bool approved;
+  final String
+  approvalStatus; // Changed from bool approved to String approvalStatus
   final int enrolledCount;
   final bool conflict;
   final DateTime createdAt;
@@ -31,7 +32,7 @@ class Event {
     required this.price,
     required this.capacity,
     required this.createdByUid,
-    required this.approved,
+    required this.approvalStatus,
     required this.enrolledCount,
     required this.conflict,
     required this.createdAt,
@@ -53,7 +54,7 @@ class Event {
           : (json['price'] ?? 0).toDouble(),
       capacity: json['capacity'] ?? 0,
       createdByUid: json['createdByUid'] ?? '',
-      approved: json['approved'] ?? false,
+      approvalStatus: json['approvalStatus'] ?? 'pending',
       enrolledCount: json['enrolledCount'] ?? 0,
       conflict: json['conflict'] ?? false,
       createdAt: (json['createdAt'] as Timestamp).toDate(),
@@ -74,10 +75,10 @@ class Event {
       'price': price,
       'capacity': capacity,
       'createdByUid': createdByUid,
-      'approved': approved,
+      'approvalStatus': approvalStatus,
       'enrolledCount': enrolledCount,
       'conflict': conflict,
-      'createdAt': createdAt,
+      'createdAt': Timestamp.fromDate(createdAt),
     };
   }
 }

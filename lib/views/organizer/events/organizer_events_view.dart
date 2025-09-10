@@ -67,7 +67,7 @@ class OrganizerEventsView extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                maxWidth: MediaQuery.of(context).size.width, // Limit the width
+                maxWidth: MediaQuery.of(context).size.width,
               ),
               child: PaginatedDataTable2(
                 headingRowDecoration: BoxDecoration(
@@ -77,7 +77,7 @@ class OrganizerEventsView extends StatelessWidget {
                 ),
                 columnSpacing: 10,
                 horizontalMargin: 8,
-                minWidth: 1000, // Adjusted minWidth to avoid overflow
+                minWidth: 1000,
                 columns: [
                   DataColumn2(
                     label: const Text('Event'),
@@ -186,6 +186,24 @@ class EventDataSource extends DataTableSource {
   DataRow getRow(int index) {
     final event = events[index];
 
+    // Determine status color and text based on approvalStatus
+    Color statusColor;
+    String statusText;
+
+    switch (event.approvalStatus) {
+      case 'approved':
+        statusColor = Colors.green;
+        statusText = 'Approved';
+        break;
+      case 'rejected':
+        statusColor = Colors.red;
+        statusText = 'Rejected';
+        break;
+      default:
+        statusColor = Colors.orange;
+        statusText = 'Pending';
+    }
+
     // Check if the row has data
     final hasData = event.title.isNotEmpty && event.venue.isNotEmpty;
 
@@ -196,7 +214,7 @@ class EventDataSource extends DataTableSource {
       cells: [
         DataCell(
           SizedBox(
-            width: 180, // Adjust width as necessary
+            width: 180,
             child: Text(
               event.title,
               maxLines: 2,
@@ -219,26 +237,14 @@ class EventDataSource extends DataTableSource {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: event.approved
-                  ? Colors.green.withValues(alpha: 0.1)
-                  : event.conflict
-                  ? Colors.red.withValues(alpha: 0.1)
-                  : Colors.orange.withValues(alpha: 0.1),
+              color: statusColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
-              event.approved
-                  ? 'Approved'
-                  : event.conflict
-                  ? 'Conflict'
-                  : 'Pending',
+              statusText,
               style: TextStyle(
                 fontSize: 12,
-                color: event.approved
-                    ? Colors.green
-                    : event.conflict
-                    ? Colors.red
-                    : Colors.orange,
+                color: statusColor,
                 fontWeight: FontWeight.w500,
               ),
             ),

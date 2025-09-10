@@ -121,6 +121,7 @@ class AdminDashboardView extends StatelessWidget {
           const SizedBox(height: 16),
           Card(
             shape: RoundedRectangleBorder(
+              side: const BorderSide(color: Colors.grey),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Padding(
@@ -130,7 +131,7 @@ class AdminDashboardView extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.purple.withOpacity(0.1),
+                      color: Colors.purple.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Icon(Icons.attach_money, color: Colors.purple),
@@ -146,7 +147,7 @@ class AdminDashboardView extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          '₹${NumberFormat('#,##0.00').format(controller.totalRevenue.value)}',
+                          'BDT ${NumberFormat('#,##0.00').format(controller.totalRevenue.value)}',
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -171,7 +172,10 @@ class AdminDashboardView extends StatelessWidget {
     required Color color,
   }) {
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(
+        side: BorderSide(color: Colors.blue.withValues(alpha: 0.6), width: 2),
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -182,7 +186,7 @@ class AdminDashboardView extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
+                    color: color.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(icon, color: color),
@@ -207,7 +211,10 @@ class AdminDashboardView extends StatelessWidget {
 
   Widget _buildQuickActions(BuildContext context) {
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(
+        side: const BorderSide(color: Colors.grey),
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -283,16 +290,16 @@ class AdminDashboardView extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.all(16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        backgroundColor: color.withOpacity(0.1),
+        backgroundColor: color.withValues(alpha: 0.5),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: color, size: 32),
+          Icon(icon, color: Colors.white, size: 32, weight: 1),
           const SizedBox(height: 8),
           Text(
             title,
-            style: TextStyle(color: color, fontWeight: FontWeight.w500),
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
         ],
@@ -302,7 +309,10 @@ class AdminDashboardView extends StatelessWidget {
 
   Widget _buildPendingApprovals() {
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(
+        side: BorderSide(color: Colors.blue.withValues(alpha: 0.6), width: 2),
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -345,9 +355,11 @@ class AdminDashboardView extends StatelessWidget {
               return Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.1),
+                  color: Colors.orange.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                  border: Border.all(
+                    color: Colors.orange.withValues(alpha: 0.3),
+                  ),
                 ),
                 child: Row(
                   children: [

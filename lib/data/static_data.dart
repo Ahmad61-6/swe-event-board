@@ -9,7 +9,8 @@ class StaticData {
       title: 'Flutter Workshop',
       description: 'A hands-on workshop for Flutter beginners.',
       type: 'Workshop',
-      bannerUrl: 'https://via.placeholder.com/300x150.png?text=Flutter+Workshop',
+      bannerUrl:
+          'https://via.placeholder.com/300x150.png?text=Flutter+Workshop',
       startAt: DateTime.now().add(const Duration(days: 5)),
       endAt: DateTime.now().add(const Duration(days: 5, hours: 2)),
       venue: 'Online',
@@ -17,10 +18,11 @@ class StaticData {
       price: 0,
       capacity: 100,
       createdByUid: 'admin',
-      approved: true,
+      // approved: true,
       enrolledCount: 50,
       conflict: false,
       createdAt: DateTime.now(),
+      approvalStatus: 'approved',
     ),
     Event(
       eventId: '2',
@@ -35,10 +37,11 @@ class StaticData {
       price: 25.0,
       capacity: 50,
       createdByUid: 'admin',
-      approved: true,
+      // approved: true,
       enrolledCount: 25,
       conflict: false,
       createdAt: DateTime.now(),
+      approvalStatus: 'approved',
     ),
     Event(
       eventId: '3',
@@ -53,10 +56,11 @@ class StaticData {
       price: 10.0,
       capacity: 200,
       createdByUid: 'admin',
-      approved: true,
+      // approved: true,
       enrolledCount: 150,
       conflict: false,
       createdAt: DateTime.now(),
+      approvalStatus: '',
     ),
   ];
 
@@ -83,7 +87,8 @@ class StaticData {
       contactEmail: 'ieee@example.com',
       contactPhone: '098-765-4321',
       logoUrl: 'https://via.placeholder.com/150.png?text=IEEE+Logo',
-      bannerImageUrl: 'https://via.placeholder.com/400x200.png?text=IEEE+Banner',
+      bannerImageUrl:
+          'https://via.placeholder.com/400x200.png?text=IEEE+Banner',
       approved: true,
       createdAt: DateTime.now(),
     ),
@@ -96,7 +101,8 @@ class StaticData {
       contactEmail: 'rotaract@example.com',
       contactPhone: '111-222-3333',
       logoUrl: 'https://via.placeholder.com/150.png?text=Rotaract+Logo',
-      bannerImageUrl: 'https://via.placeholder.com/400x200.png?text=Rotaract+Banner',
+      bannerImageUrl:
+          'https://via.placeholder.com/400x200.png?text=Rotaract+Banner',
       approved: true,
       createdAt: DateTime.now(),
     ),

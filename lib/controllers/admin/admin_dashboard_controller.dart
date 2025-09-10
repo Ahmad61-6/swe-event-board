@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:event_board/data/services/network_service.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class AdminDashboardController extends GetxController {
@@ -21,65 +20,57 @@ class AdminDashboardController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _loadKPIs();
+    _listenToKPIs();
   }
 
-  Future<void> _loadKPIs() async {
-    try {
-      isLoadingKPIs.value = true;
-      if (!await _networkService.isConnected) {
+  void _listenToKPIs() {
+    isLoadingKPIs.value = true;
+    _networkService.isConnected.then((isConnected) {
+      if (!isConnected) {
         Get.snackbar('No Internet', 'Please check your internet connection.');
         isLoadingKPIs.value = false;
         isLoading.value = false;
         return;
       }
 
-      // Load total students
-      QuerySnapshot studentsSnapshot = await _firestore
-          .collection('students')
-          .get();
-      totalStudents.value = studentsSnapshot.size;
+      _firestore.collection('students').snapshots().listen((snapshot) {
+        totalStudents.value = snapshot.size;
+      });
 
-      // Load total organizations
-      QuerySnapshot orgSnapshot = await _firestore
-          .collection('organizations')
-          .get();
-      totalOrganizations.value = orgSnapshot.size;
+      _firestore.collection('organizations').snapshots().listen((snapshot) {
+        totalOrganizations.value = snapshot.size;
+      });
 
-      // Load events and pending events
-      QuerySnapshot allEventsSnapshot = await _firestore
-          .collectionGroup('events')
-          .get();
+      _firestore.collectionGroup('events').snapshots().listen((snapshot) {
+        totalEvents.value = snapshot.size;
+        double revenue = 0.0;
+        int pending = 0;
+        for (var doc in snapshot.docs) {
+          final event = doc.data() as Map<String, dynamic>;
+          final enrolledCount = event['enrolledCount'] ?? 0;
+          final price = (event['price'] ?? 0).toDouble();
+          revenue += enrolledCount * price;
 
-      totalEvents.value = allEventsSnapshot.size;
+          // Count pending events (not approved or rejected)
+          final status = event['approvalStatus'] ?? 'pending';
+          if (status == 'pending') {
+            pending++;
+          }
+        }
+        totalRevenue.value = revenue;
+        pendingEvents.value = pending;
+      });
 
-      QuerySnapshot pendingEventsSnapshot = await _firestore
-          .collectionGroup('events')
-          .where('approved', isEqualTo: false)
-          .get();
-
-      pendingEvents.value = pendingEventsSnapshot.size;
-
-      // Calculate total revenue (simplified)
-      double revenue = 0.0;
-      for (var doc in allEventsSnapshot.docs) {
-        final event = doc.data() as Map<String, dynamic>;
-        final enrolledCount = event['enrolledCount'] ?? 0;
-        final price = (event['price'] ?? 0).toDouble();
-        revenue += enrolledCount * price;
-      }
-
-      totalRevenue.value = revenue;
-    } catch (e) {
-      debugPrint(e.toString());
-      Get.snackbar('Error', 'Failed to load KPIs');
-    } finally {
       isLoadingKPIs.value = false;
       isLoading.value = false;
-    }
+    });
   }
 
   Future<void> refreshData() async {
-    await _loadKPIs();
+    // Data is now real-time, so this is not strictly necessary
+    // but can be kept for a manual refresh option.
+    isLoadingKPIs.value = true;
+    await Future.delayed(Duration(milliseconds: 500));
+    isLoadingKPIs.value = false;
   }
 }

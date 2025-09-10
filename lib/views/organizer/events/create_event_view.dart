@@ -101,21 +101,27 @@ class _CreateEventViewState extends State<CreateEventView> {
               _buildTextFormField(
                 controller: _titleController,
                 label: 'Event Title',
-                validator: (value) => (value == null || value.isEmpty) ? 'Please enter event title' : null,
+                validator: (value) => (value == null || value.isEmpty)
+                    ? 'Please enter event title'
+                    : null,
               ),
               const SizedBox(height: 16),
               _buildTextFormField(
                 controller: _descriptionController,
                 label: 'Description',
                 maxLines: 4,
-                validator: (value) => (value == null || value.isEmpty) ? 'Please enter event description' : null,
+                validator: (value) => (value == null || value.isEmpty)
+                    ? 'Please enter event description'
+                    : null,
               ),
               const SizedBox(height: 16),
               _buildDropdownFormField(
                 controller: _typeController,
                 label: 'Event Type',
                 items: AppConstants.eventTypes,
-                validator: (value) => (value == null || value.isEmpty) ? 'Please select event type' : null,
+                validator: (value) => (value == null || value.isEmpty)
+                    ? 'Please select event type'
+                    : null,
               ),
               const SizedBox(height: 16),
               _buildDateTimePicker(
@@ -137,7 +143,9 @@ class _CreateEventViewState extends State<CreateEventView> {
               _buildTextFormField(
                 controller: _venueController,
                 label: 'Venue',
-                validator: (value) => (value == null || value.isEmpty) ? 'Please enter venue' : null,
+                validator: (value) => (value == null || value.isEmpty)
+                    ? 'Please enter venue'
+                    : null,
               ),
               const SizedBox(height: 16),
               _buildTextFormField(
@@ -150,8 +158,10 @@ class _CreateEventViewState extends State<CreateEventView> {
                 label: 'Price (₹)',
                 keyboardType: TextInputType.number,
                 validator: (value) {
-                  if (value == null || value.isEmpty) return 'Please enter price';
-                  if (double.tryParse(value) == null) return 'Please enter a valid number';
+                  if (value == null || value.isEmpty)
+                    return 'Please enter price';
+                  if (double.tryParse(value) == null)
+                    return 'Please enter a valid number';
                   return null;
                 },
               ),
@@ -161,8 +171,10 @@ class _CreateEventViewState extends State<CreateEventView> {
                 label: 'Capacity',
                 keyboardType: TextInputType.number,
                 validator: (value) {
-                  if (value == null || value.isEmpty) return 'Please enter capacity';
-                  if (int.tryParse(value) == null) return 'Please enter a valid number';
+                  if (value == null || value.isEmpty)
+                    return 'Please enter capacity';
+                  if (int.tryParse(value) == null)
+                    return 'Please enter a valid number';
                   return null;
                 },
               ),
@@ -171,13 +183,25 @@ class _CreateEventViewState extends State<CreateEventView> {
                 () => SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: controller.isCreating.value || controller.isUpdating.value ? null : _handleSaveEvent,
+                    onPressed:
+                        controller.isCreating.value ||
+                            controller.isUpdating.value
+                        ? null
+                        : _handleSaveEvent,
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
-                    child: controller.isCreating.value || controller.isUpdating.value
+                    child:
+                        controller.isCreating.value ||
+                            controller.isUpdating.value
                         ? const CircularProgressIndicator()
-                        : Text(isEditMode ? 'Update Event' : 'Create Event', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                        : Text(
+                            isEditMode ? 'Update Event' : 'Create Event',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                   ),
                 ),
               ),
@@ -192,11 +216,15 @@ class _CreateEventViewState extends State<CreateEventView> {
     return GestureDetector(
       onTap: () async {
         final picker = ImagePicker();
-        final pickedFile = await picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
+        final pickedFile = await picker.pickImage(
+          source: ImageSource.gallery,
+          imageQuality: 80,
+        );
         if (pickedFile != null) {
           setState(() {
             _bannerImage = File(pickedFile.path);
-            _bannerImageUrl = null; // Clear the network image if a new file is picked
+            _bannerImageUrl =
+                null; // Clear the network image if a new file is picked
           });
         }
       },
@@ -208,10 +236,16 @@ class _CreateEventViewState extends State<CreateEventView> {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: Colors.grey.shade400),
           image: _bannerImage != null
-              ? DecorationImage(image: FileImage(_bannerImage!), fit: BoxFit.cover)
+              ? DecorationImage(
+                  image: FileImage(_bannerImage!),
+                  fit: BoxFit.cover,
+                )
               : _bannerImageUrl != null
-                  ? DecorationImage(image: NetworkImage(_bannerImageUrl!), fit: BoxFit.cover)
-                  : null,
+              ? DecorationImage(
+                  image: NetworkImage(_bannerImageUrl!),
+                  fit: BoxFit.cover,
+                )
+              : null,
         ),
         child: _bannerImage == null && _bannerImageUrl == null
             ? const Center(
@@ -220,7 +254,10 @@ class _CreateEventViewState extends State<CreateEventView> {
                   children: [
                     Icon(Icons.add_a_photo, color: Colors.grey, size: 40),
                     SizedBox(height: 8),
-                    Text('Tap to upload a banner', style: TextStyle(color: Colors.grey)),
+                    Text(
+                      'Tap to upload a banner',
+                      style: TextStyle(color: Colors.grey),
+                    ),
                   ],
                 ),
               )
@@ -290,7 +327,10 @@ class _CreateEventViewState extends State<CreateEventView> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        ),
         const SizedBox(height: 8),
         Row(
           children: [
@@ -377,8 +417,20 @@ class _CreateEventViewState extends State<CreateEventView> {
       return;
     }
 
-    final startDateTime = DateTime(_startDate.year, _startDate.month, _startDate.day, _startTime.hour, _startTime.minute);
-    final endDateTime = DateTime(_endDate.year, _endDate.month, _endDate.day, _endTime.hour, _endTime.minute);
+    final startDateTime = DateTime(
+      _startDate.year,
+      _startDate.month,
+      _startDate.day,
+      _startTime.hour,
+      _startTime.minute,
+    );
+    final endDateTime = DateTime(
+      _endDate.year,
+      _endDate.month,
+      _endDate.day,
+      _endTime.hour,
+      _endTime.minute,
+    );
 
     if (endDateTime.isBefore(startDateTime)) {
       Get.snackbar('Error', 'End time must be after start time');
@@ -395,7 +447,9 @@ class _CreateEventViewState extends State<CreateEventView> {
     }
 
     final event = Event(
-      eventId: isEditMode ? widget.event!.eventId : '', // Generated by controller for new events
+      eventId: isEditMode
+          ? widget.event!.eventId
+          : '', // Generated by controller for new events
       title: _titleController.text.trim(),
       description: _descriptionController.text.trim(),
       type: _typeController.text,
@@ -406,8 +460,12 @@ class _CreateEventViewState extends State<CreateEventView> {
       meetLink: _meetLinkController.text.trim(),
       price: double.tryParse(_priceController.text) ?? 0,
       capacity: int.tryParse(_capacityController.text) ?? 0,
-      createdByUid: isEditMode ? widget.event!.createdByUid : '', // Set by controller for new events
-      approved: isEditMode ? widget.event!.approved : false,
+      createdByUid: isEditMode
+          ? widget.event!.createdByUid
+          : '', // Set by controller for new events
+      approvalStatus: isEditMode
+          ? widget.event!.approvalStatus
+          : 'pending', // Use approvalStatus instead of approved
       enrolledCount: isEditMode ? widget.event!.enrolledCount : 0,
       conflict: isEditMode ? widget.event!.conflict : false,
       createdAt: isEditMode ? widget.event!.createdAt : DateTime.now(),
