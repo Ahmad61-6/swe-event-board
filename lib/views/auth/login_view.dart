@@ -61,17 +61,7 @@ class _LoginViewState extends State<LoginView> {
                 },
               ),
               const SizedBox(height: 16),
-              _buildTextFormField(
-                controller: _passwordController,
-                label: 'Password',
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your password';
-                  }
-                  return null;
-                },
-              ),
+              Obx(() => _buildPasswordField()), // Updated password field
               const SizedBox(height: 24),
               Align(
                 alignment: Alignment.centerRight,
@@ -142,6 +132,39 @@ class _LoginViewState extends State<LoginView> {
       keyboardType: keyboardType,
       obscureText: obscureText,
       validator: validator,
+    );
+  }
+
+  // New method for password field with visibility toggle
+  Widget _buildPasswordField() {
+    return TextFormField(
+      controller: _passwordController,
+      decoration: InputDecoration(
+        labelText: 'Password',
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        suffixIcon: IconButton(
+          icon: Icon(
+            _authController.isPasswordVisible.value
+                ? Icons.visibility
+                : Icons.visibility_off,
+            color: Colors.grey,
+          ),
+          onPressed: () {
+            _authController.togglePasswordVisibility();
+          },
+        ),
+      ),
+      obscureText: !_authController.isPasswordVisible.value,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please enter your password';
+        }
+        return null;
+      },
     );
   }
 

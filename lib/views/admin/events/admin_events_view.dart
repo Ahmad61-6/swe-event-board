@@ -92,7 +92,7 @@ class AdminEventsView extends StatelessWidget {
           return DataTable2(
             columnSpacing: 12,
             horizontalMargin: 12,
-            minWidth: 1000,
+            minWidth: 1200,
             headingRowColor: WidgetStateColor.resolveWith(
               (states) => Theme.of(context).primaryColor.withValues(alpha: 0.1),
             ),
@@ -182,9 +182,10 @@ class AdminEventsView extends StatelessWidget {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        if (event.approvalStatus == 'pending')
+                        if (event.approvalStatus == 'pending') ...[
                           IconButton(
-                            onPressed: () => _showApprovalDialog(event, true),
+                            onPressed: () =>
+                                _showApprovalDialog(event, 'approve'),
                             icon: const Icon(
                               Icons.check,
                               size: 20,
@@ -192,17 +193,38 @@ class AdminEventsView extends StatelessWidget {
                             ),
                             tooltip: 'Approve',
                           ),
-                        if (event.approvalStatus != 'pending')
                           IconButton(
-                            onPressed: () => _showApprovalDialog(event, false),
+                            onPressed: () =>
+                                _showApprovalDialog(event, 'reject'),
                             icon: const Icon(
                               Icons.close,
                               size: 20,
                               color: Colors.red,
                             ),
-                            tooltip: event.approvalStatus == 'approved'
-                                ? 'Reject'
-                                : 'Set to Pending',
+                            tooltip: 'Reject',
+                          ),
+                        ],
+                        if (event.approvalStatus == 'approved')
+                          IconButton(
+                            onPressed: () =>
+                                _showApprovalDialog(event, 'reject'),
+                            icon: const Icon(
+                              Icons.close,
+                              size: 20,
+                              color: Colors.red,
+                            ),
+                            tooltip: 'Reject',
+                          ),
+                        if (event.approvalStatus == 'rejected')
+                          IconButton(
+                            onPressed: () =>
+                                _showApprovalDialog(event, 'set_pending'),
+                            icon: const Icon(
+                              Icons.undo,
+                              size: 20,
+                              color: Colors.orange,
+                            ),
+                            tooltip: 'Set to Pending',
                           ),
                         IconButton(
                           onPressed: () => _viewEventDetails(event),
@@ -221,25 +243,35 @@ class AdminEventsView extends StatelessWidget {
     );
   }
 
-  void _showApprovalDialog(Event event, bool approve) {
-    final currentStatus = event.approvalStatus;
+  void _showApprovalDialog(Event event, String action) {
+    // action: 'approve', 'reject', 'set_pending'
     String title;
     String message;
     String actionText;
+    VoidCallback onConfirm;
 
-    if (approve) {
-      title = 'Approve Event';
-      message = 'Are you sure you want to approve "${event.title}"?';
-      actionText = 'Approve';
-    } else if (currentStatus == 'approved') {
-      title = 'Reject Event';
-      message = 'Are you sure you want to reject "${event.title}"?';
-      actionText = 'Reject';
-    } else {
-      title = 'Set to Pending';
-      message =
-          'Are you sure you want to set "${event.title}" back to pending?';
-      actionText = 'Set Pending';
+    switch (action) {
+      case 'approve':
+        title = 'Approve Event';
+        message = 'Are you sure you want to approve "${event.title}"?';
+        actionText = 'Approve';
+        onConfirm = () => controller.approveEvent(event.eventId, true);
+        break;
+      case 'reject':
+        title = 'Reject Event';
+        message = 'Are you sure you want to reject "${event.title}"?';
+        actionText = 'Reject';
+        onConfirm = () => controller.approveEvent(event.eventId, false);
+        break;
+      case 'set_pending':
+        title = 'Set to Pending';
+        message =
+            'Are you sure you want to set "${event.title}" back to pending?';
+        actionText = 'Set Pending';
+        onConfirm = () => controller.setEventToPending(event.eventId);
+        break;
+      default:
+        return;
     }
 
     Get.defaultDialog(
@@ -250,13 +282,7 @@ class AdminEventsView extends StatelessWidget {
         TextButton(
           onPressed: () {
             Get.back();
-            if (approve) {
-              controller.approveEvent(event.eventId, true);
-            } else if (currentStatus == 'approved') {
-              controller.approveEvent(event.eventId, false);
-            } else {
-              controller.setEventToPending(event.eventId);
-            }
+            onConfirm();
           },
           child: Text(actionText),
         ),

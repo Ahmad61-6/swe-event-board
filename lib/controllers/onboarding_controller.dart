@@ -13,6 +13,6 @@ class OnboardingController extends GetxController {
 
   void completeOnboarding() {
     _storage.write('isFirstTime', false);
-    Get.offAllNamed(AppRoutes.roleSelection);
+    Get.offAllNamed(AppRoutes.login);
   }
 }

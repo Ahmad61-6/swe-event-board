@@ -107,16 +107,22 @@ class AdminEventsController extends GetxController {
         return;
       }
 
-      // Update approval status
       final newStatus = approve ? 'approved' : 'rejected';
-      await _firestore
+
+      final batch = _firestore.batch();
+
+      final orgEventRef = _firestore
           .collection('organizations')
           .doc(org.orgId)
           .collection('events')
-          .doc(eventId)
-          .update({'approvalStatus': newStatus});
+          .doc(eventId);
+      batch.update(orgEventRef, {'approvalStatus': newStatus});
 
-      // Update local state
+      final allEventRef = _firestore.collection('allEvents').doc(eventId);
+      batch.update(allEventRef, {'approvalStatus': newStatus});
+
+      await batch.commit();
+
       events[eventIndex] = Event(
         eventId: event.eventId,
         title: event.title,
@@ -136,7 +142,6 @@ class AdminEventsController extends GetxController {
         createdAt: event.createdAt,
       );
 
-      // Refresh dashboard to update pending count
       try {
         final dashboardController = Get.find<AdminDashboardController>();
         dashboardController.refreshData();
@@ -165,14 +170,20 @@ class AdminEventsController extends GetxController {
         return;
       }
 
-      await _firestore
+      final batch = _firestore.batch();
+
+      final orgEventRef = _firestore
           .collection('organizations')
           .doc(org.orgId)
           .collection('events')
-          .doc(eventId)
-          .update({'approvalStatus': 'pending'});
+          .doc(eventId);
+      batch.update(orgEventRef, {'approvalStatus': 'pending'});
 
-      // Update local state
+      final allEventRef = _firestore.collection('allEvents').doc(eventId);
+      batch.update(allEventRef, {'approvalStatus': 'pending'});
+
+      await batch.commit();
+
       events[eventIndex] = Event(
         eventId: event.eventId,
         title: event.title,
@@ -192,7 +203,6 @@ class AdminEventsController extends GetxController {
         createdAt: event.createdAt,
       );
 
-      // Refresh dashboard to update pending count
       try {
         final dashboardController = Get.find<AdminDashboardController>();
         dashboardController.refreshData();

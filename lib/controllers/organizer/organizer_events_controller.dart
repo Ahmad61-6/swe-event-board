@@ -103,10 +103,7 @@ class OrganizerEventsController extends GetxController {
         );
   }
 
-  Future<void> loadEvents({bool refresh = false}) async {
-    // This function is no longer needed as we are using a stream.
-    // You can keep it for pagination if you want to implement it later.
-  }
+  Future<void> loadEvents({bool refresh = false}) async {}
 
   Future<String?> uploadBannerImage(File imageFile) async {
     try {
@@ -164,12 +161,19 @@ class OrganizerEventsController extends GetxController {
         createdAt: DateTime.now(),
       );
 
-      await _firestore
+      final batch = _firestore.batch();
+
+      final orgEventRef = _firestore
           .collection('organizations')
           .doc(organization.value!.orgId)
           .collection('events')
-          .doc(eventId)
-          .set(newEvent.toJson());
+          .doc(eventId);
+      batch.set(orgEventRef, newEvent.toJson());
+
+      final allEventRef = _firestore.collection('allEvents').doc(eventId);
+      batch.set(allEventRef, newEvent.toJson());
+
+      await batch.commit();
 
       events.insert(0, newEvent);
 
@@ -192,15 +196,25 @@ class OrganizerEventsController extends GetxController {
         return;
       }
 
-      await _firestore
+      final batch = _firestore.batch();
+
+      final orgEventRef = _firestore
           .collection('organizations')
           .doc(organization.value!.orgId)
           .collection('events')
-          .doc(event.eventId)
-          .update({
-            ...event.toJson(),
-            'approvalStatus': 'pending', // Reset to pending when updated
-          });
+          .doc(event.eventId);
+      batch.update(orgEventRef, {
+        ...event.toJson(),
+        'approvalStatus': 'pending', // Reset to pending when updated
+      });
+
+      final allEventRef = _firestore.collection('allEvents').doc(event.eventId);
+      batch.update(allEventRef, {
+        ...event.toJson(),
+        'approvalStatus': 'pending', // Reset to pending when updated
+      });
+
+      await batch.commit();
 
       final index = events.indexWhere((e) => e.eventId == event.eventId);
       if (index != -1) {
@@ -243,12 +257,20 @@ class OrganizerEventsController extends GetxController {
         Get.snackbar('No Internet', 'Please check your internet connection.');
         return;
       }
-      await _firestore
+
+      final batch = _firestore.batch();
+
+      final orgEventRef = _firestore
           .collection('organizations')
           .doc(organization.value!.orgId)
           .collection('events')
-          .doc(eventId)
-          .delete();
+          .doc(eventId);
+      batch.delete(orgEventRef);
+
+      final allEventRef = _firestore.collection('allEvents').doc(eventId);
+      batch.delete(allEventRef);
+
+      await batch.commit();
 
       events.removeWhere((event) => event.eventId == eventId);
 

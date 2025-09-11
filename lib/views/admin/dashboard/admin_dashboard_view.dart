@@ -10,7 +10,7 @@ class AdminDashboardView extends StatelessWidget {
     AdminDashboardController(),
   );
 
-  AdminDashboardView({Key? key}) : super(key: key);
+  AdminDashboardView({super.key});
 
   @override
   Widget build(BuildContext context) {

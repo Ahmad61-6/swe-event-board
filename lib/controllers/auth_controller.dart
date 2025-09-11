@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:event_board/data/services/network_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
@@ -17,6 +18,7 @@ class AuthController extends GetxController {
   Rx<User?> user = Rx<User?>(null);
   RxBool isLoading = false.obs;
   RxString role = ''.obs;
+  RxBool isPasswordVisible = false.obs; // Add this line
 
   @override
   void onInit() {
@@ -28,6 +30,11 @@ class AuthController extends GetxController {
     if (cachedRole != null) {
       role.value = cachedRole;
     }
+  }
+
+  // Add this method to toggle password visibility
+  void togglePasswordVisibility() {
+    isPasswordVisible.value = !isPasswordVisible.value;
   }
 
   Future<void> signIn({required String email, required String password}) async {
@@ -48,6 +55,7 @@ class AuthController extends GetxController {
         Get.offAllNamed(AppRoutes.getHomeRoute(userData['role']));
       }
     } catch (e) {
+      debugPrint('=====>Error during sign in: ${e.toString()}');
       Get.snackbar('Error', e.toString());
     } finally {
       isLoading.value = false;
@@ -85,6 +93,7 @@ class AuthController extends GetxController {
         Get.offAllNamed(AppRoutes.studentDashboard);
       }
     } catch (e) {
+      debugPrint('Error during student sign up: ${e.toString()}');
       Get.snackbar('Error', e.toString());
     } finally {
       isLoading.value = false;
@@ -122,6 +131,7 @@ class AuthController extends GetxController {
         Get.offAllNamed(AppRoutes.organizerDashboard);
       }
     } catch (e) {
+      debugPrint('Error during organizer sign up: ${e.toString()}');
       Get.snackbar('Error', e.toString());
     } finally {
       isLoading.value = false;
@@ -151,6 +161,7 @@ class AuthController extends GetxController {
         Get.offAllNamed(AppRoutes.adminDashboard);
       }
     } catch (e) {
+      debugPrint('Error during admin sign up: ${e.toString()}');
       Get.snackbar('Error', e.toString());
     } finally {
       isLoading.value = false;

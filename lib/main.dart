@@ -21,8 +21,6 @@ void main() async {
 
   // Initialize GetStorage
   await GetStorage.init();
-  final box = GetStorage();
-  final bool isFirstTime = box.read('isFirstTime') ?? true;
 
   // Enable Firestore offline persistence
   FirebaseFirestore.instance.settings = const Settings(
@@ -41,7 +39,7 @@ void main() async {
         ErrorHandler.logFlutterError(details);
       };
 
-      runApp(MyApp(isFirstTime: isFirstTime));
+      runApp(const MyApp());
     },
     (error, stack) {
       ErrorHandler.logError(error, stack);
@@ -50,8 +48,7 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  final bool isFirstTime;
-  const MyApp({super.key, required this.isFirstTime});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -61,9 +58,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: AppTheme.getThemeMode(),
-      initialRoute: isFirstTime
-          ? AppRoutes.onboarding
-          : AppRoutes.roleSelection,
+      initialRoute: AppRoutes.splash,
       getPages: AppPages.routes,
       smartManagement: SmartManagement.onlyBuilder,
       initialBinding: NetworkBinding(),

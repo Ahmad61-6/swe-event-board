@@ -78,7 +78,13 @@ class _OrganizerDashboardViewState extends State<OrganizerDashboardView> {
 
       final org = controller.organization.value!;
       return Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(
+          side: BorderSide(
+            width: 2,
+            color: Theme.of(context).primaryColor.withValues(alpha: 0.5),
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Row(
@@ -204,7 +210,10 @@ class _OrganizerDashboardViewState extends State<OrganizerDashboardView> {
     required Color color,
   }) {
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(
+        side: BorderSide(color: color.withValues(alpha: 0.6), width: 2),
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -243,7 +252,10 @@ class _OrganizerDashboardViewState extends State<OrganizerDashboardView> {
 
   Widget _buildQuickActions(BuildContext context) {
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(
+        side: BorderSide(color: Theme.of(context).primaryColor, width: 2),
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -295,16 +307,16 @@ class _OrganizerDashboardViewState extends State<OrganizerDashboardView> {
       style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.all(16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        backgroundColor: color.withValues(alpha: 0.1),
+        backgroundColor: color.withValues(alpha: 0.8),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: color, size: 32),
+          Icon(icon, color: Colors.white, size: 32, fill: 0.5, weight: 0.5),
           const SizedBox(height: 8),
           Text(
             title,
-            style: TextStyle(color: color, fontWeight: FontWeight.w500),
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
           ),
         ],
       ),
@@ -344,7 +356,10 @@ class _OrganizerDashboardViewState extends State<OrganizerDashboardView> {
       }
 
       return Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(
+          side: const BorderSide(color: Colors.grey, width: 2),
+          borderRadius: BorderRadius.circular(12),
+        ),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(

@@ -1,20 +1,17 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:event_board/views/student/event/event_detail_view.dart';
-import 'package:event_board/views/student/organization_detail_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
-import '../../../constants/app_constants.dart';
-import '../../../controllers/student/student_dashboard_controller.dart';
+import '../../../controllers/student/student_events_controller.dart';
 import '../../../data/model/event.dart';
 import '../../../routes/app_routes.dart';
 import '../../../widgets/event_card_widget.dart';
-import '../../../widgets/organization_card_widget.dart';
 
 class StudentDashboardView extends StatelessWidget {
-  final StudentDashboardController controller = Get.put(
-    StudentDashboardController(),
+  final StudentEventsController controller = Get.put(
+    StudentEventsController(),
   );
 
   StudentDashboardView({super.key});
@@ -46,18 +43,8 @@ class StudentDashboardView extends StatelessWidget {
 
               const SizedBox(height: 24),
 
-              // Category Chips
-              _buildCategoryChips(),
-
-              const SizedBox(height: 24),
-
               // Upcoming Events
               _buildUpcomingEventsSection(),
-
-              const SizedBox(height: 24),
-
-              // Clubs to Join
-              _buildClubsToJoinSection(),
             ],
           ),
         ),
@@ -67,8 +54,12 @@ class StudentDashboardView extends StatelessWidget {
 
   Widget _buildCarouselSection() {
     return Obx(() {
+      if (controller.isLoadingCarousel.value) {
+        return const Center(child: CircularProgressIndicator());
+      }
+
       if (controller.carouselEvents.isEmpty) {
-        return _buildEmptyState('No upcoming events');
+        return _buildEmptyState('No featured events');
       }
 
       return Column(
@@ -168,44 +159,11 @@ class StudentDashboardView extends StatelessWidget {
           Material(
             color: Colors.transparent,
             child: InkWell(
-              onTap: () => Get.to(EventDetailView(event: event)),
+              onTap: () => Get.to(() => EventDetailView(event: event)),
             ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildCategoryChips() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Categories',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 16),
-        Obx(() {
-          return Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              FilterChip(
-                label: const Text('All'),
-                selected: controller.selectedCategory.isEmpty,
-                onSelected: (_) => controller.clearCategoryFilter(),
-              ),
-              ...AppConstants.eventTypes.map((category) {
-                return FilterChip(
-                  label: Text(category),
-                  selected: controller.selectedCategory.value == category,
-                  onSelected: (_) => controller.filterByCategory(category),
-                );
-              }).toList(),
-            ],
-          );
-        }),
-      ],
     );
   }
 
@@ -221,80 +179,32 @@ class StudentDashboardView extends StatelessWidget {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             TextButton(
-              onPressed: () => Get.toNamed(AppRoutes.studentSearch),
+              onPressed: () => Get.toNamed(AppRoutes.allEvents),
               child: const Text('View All'),
             ),
           ],
         ),
         const SizedBox(height: 16),
         Obx(() {
-          if (controller.upcomingEvents.isEmpty) {
-            return _buildEmptyState('No upcoming events');
+          if (controller.isLoadingUpcoming.value) {
+            return const Center(child: CircularProgressIndicator());
           }
 
-          // Filter by category if selected
-          List<Event> filteredEvents = controller.upcomingEvents;
-          if (controller.selectedCategory.isNotEmpty) {
-            filteredEvents = controller.upcomingEvents
-                .where(
-                  (event) => event.type == controller.selectedCategory.value,
-                )
-                .toList();
+          if (controller.upcomingEvents.isEmpty) {
+            return _buildEmptyState('No upcoming events');
           }
 
           return ListView.separated(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: filteredEvents.length,
+            itemCount: controller.upcomingEvents.length,
             separatorBuilder: (_, __) => const SizedBox(height: 16),
             itemBuilder: (context, index) {
-              final event = filteredEvents[index];
+              final event = controller.upcomingEvents[index];
               return GestureDetector(
-                  onTap: () => Get.to(EventDetailView(event: event)),
+                  onTap: () => Get.to(() => EventDetailView(event: event)),
                   child: EventCardWidget(event: event));
             },
-          );
-        }),
-      ],
-    );
-  }
-
-  Widget _buildClubsToJoinSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Clubs to Join',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 16),
-        Obx(() {
-          if (controller.clubsToJoin.isEmpty) {
-            return _buildEmptyState('No clubs available');
-          }
-
-          return SizedBox(
-            height: 150,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: controller.clubsToJoin.length,
-              itemBuilder: (context, index) {
-                final organization = controller.clubsToJoin[index];
-                return Padding(
-                  padding: EdgeInsets.only(
-                    right: index == controller.clubsToJoin.length - 1 ? 0 : 16,
-                  ),
-                  child: GestureDetector(
-                    onTap: () => Get.to(OrganizationDetailView(
-                      organization: organization,
-                    )),
-                    child: OrganizationCardWidget(
-                      organization: organization,
-                    ),
-                  ),
-                );
-              },
-            ),
           );
         }),
       ],

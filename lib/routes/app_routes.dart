@@ -1,4 +1,5 @@
 abstract class AppRoutes {
+  static const splash = '/splash';
   static const initial = '/onboarding'; // Changed initial route
   static const onboarding = '/onboarding';
   static const roleSelection = '/role-selection';
@@ -13,6 +14,7 @@ abstract class AppRoutes {
   static const studentSearch = '/student/search';
   static const studentNotifications = '/student/notifications';
   static const studentProfile = '/student/profile';
+  static const allEvents = '/student/events/all';
   static const eventDetail = '/event/detail';
 
   // Organizer routes
