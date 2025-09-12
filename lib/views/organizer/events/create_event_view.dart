@@ -158,10 +158,12 @@ class _CreateEventViewState extends State<CreateEventView> {
                 label: 'Price (₹)',
                 keyboardType: TextInputType.number,
                 validator: (value) {
-                  if (value == null || value.isEmpty)
+                  if (value == null || value.isEmpty) {
                     return 'Please enter price';
-                  if (double.tryParse(value) == null)
+                  }
+                  if (double.tryParse(value) == null) {
                     return 'Please enter a valid number';
+                  }
                   return null;
                 },
               ),
@@ -171,10 +173,12 @@ class _CreateEventViewState extends State<CreateEventView> {
                 label: 'Capacity',
                 keyboardType: TextInputType.number,
                 validator: (value) {
-                  if (value == null || value.isEmpty)
+                  if (value == null || value.isEmpty) {
                     return 'Please enter capacity';
-                  if (int.tryParse(value) == null)
+                  }
+                  if (int.tryParse(value) == null) {
                     return 'Please enter a valid number';
+                  }
                   return null;
                 },
               ),
