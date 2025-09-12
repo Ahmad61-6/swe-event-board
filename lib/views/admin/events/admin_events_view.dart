@@ -334,7 +334,7 @@ class AdminEventsView extends StatelessWidget {
                   DateFormat('MMM dd, yyyy - HH:mm').format(event.endAt),
                 ),
                 _buildDetailRow('Venue:', event.venue),
-                _buildDetailRow('Price:', '₹${event.price}'),
+                _buildDetailRow('Price:', 'BDT ${event.price}'),
                 _buildDetailRow('Capacity:', event.capacity.toString()),
                 _buildDetailRow('Enrolled:', event.enrolledCount.toString()),
                 _buildDetailRow('Status:', event.approvalStatus.toUpperCase()),

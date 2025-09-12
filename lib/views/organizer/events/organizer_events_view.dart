@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 import '../../../controllers/organizer/organizer_events_controller.dart';
 import '../../../data/model/event.dart';
 import '../../../routes/app_routes.dart';
-import '../../student/event/event_detail_view.dart';
+import '../../student/events/event_detail_view.dart';
 import 'create_event_view.dart';
 
 class OrganizerEventsView extends StatelessWidget {

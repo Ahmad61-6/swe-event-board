@@ -26,14 +26,19 @@ class _StudentHomeViewState extends State<StudentHomeView> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context); // Get current theme
+
     return Scaffold(
       body: _pages[_currentIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme
+              .cardColor, // Use theme's card color instead of hardcoded white
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.1),
+              color: theme.shadowColor.withValues(
+                alpha: 0.1,
+              ), // Use theme's shadow color
               blurRadius: 8,
               offset: const Offset(0, -2),
             ),
@@ -51,10 +56,14 @@ class _StudentHomeViewState extends State<StudentHomeView> {
               _currentIndex = index;
             });
           },
-          backgroundColor: Colors.transparent,
+          backgroundColor: Colors
+              .transparent, // Keep transparent to show container background
           elevation: 0,
           showSelectedLabels: true,
           showUnselectedLabels: true,
+          selectedItemColor: theme.primaryColor, // Use theme's primary color
+          unselectedItemColor:
+              theme.unselectedWidgetColor, // Use theme's unselected color
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.home_outlined, size: 24),

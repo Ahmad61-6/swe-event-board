@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import '../../../constants/app_constants.dart';
 import '../../../controllers/organizer/organizer_events_controller.dart';
 import '../../../data/model/event.dart';
+import '../../../routes/app_routes.dart';
 
 class CreateEventView extends StatefulWidget {
   final Event? event;
@@ -188,17 +189,26 @@ class _CreateEventViewState extends State<CreateEventView> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed:
-                        controller.isCreating.value ||
-                            controller.isUpdating.value
+                        (controller.isCreating.value ||
+                            controller.isUpdating.value)
                         ? null
                         : _handleSaveEvent,
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                     child:
-                        controller.isCreating.value ||
-                            controller.isUpdating.value
-                        ? const CircularProgressIndicator()
+                        (controller.isCreating.value ||
+                            controller.isUpdating.value)
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
+                          )
                         : Text(
                             isEditMode ? 'Update Event' : 'Create Event',
                             style: const TextStyle(
@@ -475,14 +485,36 @@ class _CreateEventViewState extends State<CreateEventView> {
       createdAt: isEditMode ? widget.event!.createdAt : DateTime.now(),
     );
 
-    if (isEditMode) {
-      await controller.updateEvent(event);
-    } else {
-      await controller.createEvent(event);
-    }
+    try {
+      if (isEditMode) {
+        await controller.updateEvent(event);
+      } else {
+        await controller.createEvent(event);
+      }
 
-    if (!controller.isCreating.value && !controller.isUpdating.value) {
-      Get.back();
+      // Show success message and navigate back
+      Get.snackbar(
+        'Success',
+        isEditMode
+            ? 'Event updated successfully!'
+            : 'Event created successfully!',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+
+      // Navigate back after a short delay to show the snackbar
+      await Future.delayed(const Duration(milliseconds: 1500));
+      Get.until((route) => route.settings.name == AppRoutes.organizerDashboard);
+    } catch (e) {
+      // Show error message
+      Get.snackbar(
+        'Error',
+        'Failed to ${isEditMode ? 'update' : 'create'} event: ${e.toString()}',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     }
   }
 }

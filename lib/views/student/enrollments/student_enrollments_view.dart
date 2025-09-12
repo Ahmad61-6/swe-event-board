@@ -1,11 +1,11 @@
-import 'package:event_board/views/student/event/event_detail_view.dart';
+import 'package:event_board/views/student/events/event_detail_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import '../../../controllers/student/student_enrollments_controller.dart';
-import '../../../data/model/enrollment.dart';
 import '../../../data/model/event.dart';
+import '../../../data/model/event_enrollment.dart';
 
 class StudentEnrollmentsView extends StatelessWidget {
   final StudentEnrollmentsController controller = Get.put(
@@ -63,12 +63,18 @@ class StudentEnrollmentsView extends StatelessWidget {
 
   Widget _buildEnrollmentCard(
     BuildContext context,
-    Enrollment enrollment,
+    EventEnrollment enrollment,
     Event? event,
   ) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(
+        side: BorderSide(
+          color: Theme.of(context).primaryColor.withValues(alpha: 0.8),
+          width: 2,
+        ),
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -127,9 +133,7 @@ class StudentEnrollmentsView extends StatelessWidget {
                       style: TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                     Text(
-                      DateFormat(
-                        'MMM dd, yyyy',
-                      ).format(enrollment.registeredAt),
+                      DateFormat('MMM dd, yyyy').format(enrollment.enrolledAt),
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -143,22 +147,22 @@ class StudentEnrollmentsView extends StatelessWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: enrollment.status == 'checked_in'
+                    color: enrollment.paymentStatus == 'checked_in'
                         ? Colors.green.withAlpha(30)
-                        : enrollment.status == 'cancelled'
-                            ? Colors.red.withAlpha(30)
-                            : Colors.blue.withAlpha(30),
+                        : enrollment.paymentStatus == 'cancelled'
+                        ? Colors.red.withAlpha(30)
+                        : Colors.blue.withAlpha(30),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    enrollment.status.replaceAll('_', ' ').toUpperCase(),
+                    enrollment.paymentStatus.replaceAll('_', ' ').toUpperCase(),
                     style: TextStyle(
                       fontSize: 12,
-                      color: enrollment.status == 'checked_in'
+                      color: enrollment.paymentStatus == 'checked_in'
                           ? Colors.green
-                          : enrollment.status == 'cancelled'
-                              ? Colors.red
-                              : Colors.blue,
+                          : enrollment.paymentStatus == 'cancelled'
+                          ? Colors.red
+                          : Colors.blue,
                       fontWeight: FontWeight.w500,
                     ),
                   ),

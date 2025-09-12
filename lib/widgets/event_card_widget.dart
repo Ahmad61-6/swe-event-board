@@ -152,7 +152,7 @@ class EventCardWidget extends StatelessWidget {
                     children: [
                       Text(
                         event.price > 0
-                            ? '₹${event.price.toStringAsFixed(0)}'
+                            ? 'BDT ${event.price.toStringAsFixed(0)}'
                             : 'Free',
                         style: TextStyle(
                           fontSize: 14,

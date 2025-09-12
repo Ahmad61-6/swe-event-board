@@ -1,17 +1,19 @@
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:event_board/views/student/event/event_detail_view.dart';
+import 'package:event_board/views/student/events/event_detail_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
+import '../../../controllers/enrollment_controller.dart';
 import '../../../controllers/student/student_events_controller.dart';
 import '../../../data/model/event.dart';
 import '../../../routes/app_routes.dart';
 import '../../../widgets/event_card_widget.dart';
 
 class StudentDashboardView extends StatelessWidget {
-  final StudentEventsController controller = Get.put(
-    StudentEventsController(),
+  final StudentEventsController controller = Get.put(StudentEventsController());
+  final EnrollmentController enrollmentController = Get.put(
+    EnrollmentController(),
   );
 
   StudentDashboardView({super.key});
@@ -202,8 +204,9 @@ class StudentDashboardView extends StatelessWidget {
             itemBuilder: (context, index) {
               final event = controller.upcomingEvents[index];
               return GestureDetector(
-                  onTap: () => Get.to(() => EventDetailView(event: event)),
-                  child: EventCardWidget(event: event));
+                onTap: () => Get.to(() => EventDetailView(event: event)),
+                child: EventCardWidget(event: event),
+              );
             },
           );
         }),

@@ -1,8 +1,9 @@
-import 'package:event_board/views/student/events/all_events_view.dart';
 import 'package:event_board/views/admin/events/admin_events_view.dart';
 import 'package:event_board/views/admin/organizations/admin_organizations_view.dart';
 import 'package:event_board/views/admin/users/admin_users_view.dart';
+import 'package:event_board/views/organizer/events/organizer_events_view.dart';
 import 'package:event_board/views/splash/splash_view.dart';
+import 'package:event_board/views/student/events/all_events_view.dart';
 import 'package:get/get.dart';
 
 import '../bindings/auth_binding.dart';
@@ -23,14 +24,18 @@ import '../views/organizer/notifications/organizer_notifications_view.dart';
 import '../views/organizer/organizer_home_view.dart';
 import '../views/organizer/profile/organizer_profile_view.dart';
 import '../views/shared/unauthorized_view.dart';
-import '../views/student/event/event_detail_view.dart';
+import '../views/student/events/event_detail_view.dart';
 import '../views/student/profile/student_profile_view.dart';
 import '../views/student/student_home_view.dart';
 import 'app_routes.dart';
 
 class AppPages {
   static final routes = [
-    GetPage(name: AppRoutes.splash, page: () => SplashView(), binding: AuthBinding()),
+    GetPage(
+      name: AppRoutes.splash,
+      page: () => SplashView(),
+      binding: AuthBinding(),
+    ),
     GetPage(name: AppRoutes.onboarding, page: () => const OnboardingView()),
     GetPage(
       name: AppRoutes.initial,
@@ -142,6 +147,11 @@ class AppPages {
       name: AppRoutes.adminUsers,
       page: () => AdminUsersView(),
       middlewares: [AdminGuard()],
+    ),
+    GetPage(
+      name: AppRoutes.organizerEvents,
+      page: () => OrganizerEventsView(),
+      middlewares: [OrganizerGuard()],
     ),
     GetPage(name: '/unauthorized', page: () => const UnauthorizedView()),
   ];

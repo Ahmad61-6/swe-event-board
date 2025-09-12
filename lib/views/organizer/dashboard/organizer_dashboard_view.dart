@@ -121,28 +121,6 @@ class _OrganizerDashboardViewState extends State<OrganizerDashboardView> {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: org.approved
-                                ? Colors.green.withValues(alpha: 0.1)
-                                : Colors.orange.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            org.approved ? 'Approved' : 'Pending Approval',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: org.approved
-                                  ? Colors.green
-                                  : Colors.orange,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
                         const SizedBox(width: 8),
                         Text(
                           org.type.toUpperCase(),
