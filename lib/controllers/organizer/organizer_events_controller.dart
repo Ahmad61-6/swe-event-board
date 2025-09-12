@@ -175,8 +175,6 @@ class OrganizerEventsController extends GetxController {
 
       await batch.commit();
 
-      events.insert(0, newEvent);
-
       Get.snackbar('Success', 'Event created successfully. Awaiting approval.');
     } catch (e) {
       Get.snackbar('Error', 'Failed to create event: ${e.toString()}');

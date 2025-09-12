@@ -251,4 +251,15 @@ class AuthService extends GetxService {
       return null;
     }
   }
+
+  Future<void> sendPasswordResetEmail({required String email}) async {
+    try {
+      if (!await _networkService.isConnected) {
+        throw Exception('No Internet Connection');
+      }
+      await _auth.sendPasswordResetEmail(email: email);
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

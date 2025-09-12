@@ -15,6 +15,7 @@ import '../routes/guards/student_guard.dart';
 import '../views/admin/admin_home_view.dart';
 import '../views/admin/notifications/admin_notifications_view.dart';
 import '../views/admin/profile/admin_profile_view.dart';
+import '../views/auth/forgot_password_view.dart';
 import '../views/auth/login_view.dart';
 import '../views/auth/role_selection_view.dart';
 import '../views/auth/signup/admin_signup_view.dart';
@@ -22,6 +23,7 @@ import '../views/auth/signup/organizer_signup_view.dart';
 import '../views/auth/signup/student_signup_view.dart';
 import '../views/onboarding/onboarding_view.dart';
 import '../views/organizer/events/create_event_view.dart';
+import '../views/organizer/events/event_enrollments_view.dart';
 import '../views/organizer/notifications/organizer_notifications_view.dart';
 import '../views/organizer/organizer_home_view.dart';
 import '../views/organizer/profile/organizer_profile_view.dart';
@@ -67,6 +69,11 @@ class AppPages {
     GetPage(
       name: AppRoutes.login,
       page: () => const LoginView(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.forgotPassword,
+      page: () => const ForgotPasswordView(),
       binding: AuthBinding(),
     ),
     GetPage(
@@ -165,6 +172,11 @@ class AppPages {
       name: AppRoutes.studentSearch,
       page: () => StudentSearchView(),
       middlewares: [StudentGuard()],
+    ),
+    GetPage(
+      name: AppRoutes.organizerEventEnrollments,
+      page: () => EventEnrollmentsView(event: Get.arguments),
+      middlewares: [OrganizerGuard()],
     ),
   ];
 }

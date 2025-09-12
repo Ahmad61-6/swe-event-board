@@ -1,36 +1,34 @@
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../controllers/auth_controller.dart';
-import '../../routes/app_routes.dart';
 
-class LoginView extends StatefulWidget {
-  const LoginView({super.key});
+class ForgotPasswordView extends StatefulWidget {
+  const ForgotPasswordView({super.key});
 
   @override
-  State<LoginView> createState() => _LoginViewState();
+  State<ForgotPasswordView> createState() => _ForgotPasswordViewState();
 }
 
-class _LoginViewState extends State<LoginView> {
+class _ForgotPasswordViewState extends State<ForgotPasswordView> {
   final _formKey = GlobalKey<FormState>();
   final _authController = Get.find<AuthController>();
-
   final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-
-  bool _obscurePassword = true;
 
   @override
   void dispose() {
     _emailController.dispose();
-    _passwordController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Forgot Password'),
+      ),
       body: Container(
         width: double.infinity,
         height: double.infinity,
@@ -39,8 +37,8 @@ class _LoginViewState extends State<LoginView> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Theme.of(context).primaryColor.withValues(alpha: 0.1),
-              Theme.of(context).primaryColor.withValues(alpha: 0.05),
+              Theme.of(context).primaryColor.withAlpha(25),
+              Theme.of(context).primaryColor.withAlpha(12),
               Theme.of(context).scaffoldBackgroundColor,
             ],
           ),
@@ -55,8 +53,6 @@ class _LoginViewState extends State<LoginView> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const SizedBox(height: 48),
-
-                  // Logo/Brand
                   Container(
                     width: 100,
                     height: 100,
@@ -74,35 +70,27 @@ class _LoginViewState extends State<LoginView> {
                       ],
                     ),
                     child: const Icon(
-                      Icons.event,
+                      Icons.lock_reset,
                       size: 50,
                       color: Colors.white,
                     ),
                   ),
-
                   const SizedBox(height: 32),
-
-                  // Welcome Text
                   Text(
-                    'Welcome Back!',
+                    'Reset Your Password',
                     style: GoogleFonts.poppins(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
                       color: Theme.of(context).primaryColor,
                     ),
                   ),
-
                   const SizedBox(height: 8),
-
                   const Text(
-                    'Sign in to continue to your account',
+                    'Enter your email address below to receive a password reset link.',
                     style: TextStyle(fontSize: 16, color: Colors.grey),
                     textAlign: TextAlign.center,
                   ),
-
                   const SizedBox(height: 48),
-
-                  // Email Field
                   _buildTextField(
                     controller: _emailController,
                     label: 'Email Address',
@@ -118,31 +106,7 @@ class _LoginViewState extends State<LoginView> {
                       return null;
                     },
                   ),
-
-                  const SizedBox(height: 20),
-
-                  // Password Field
-                  _buildPasswordField(),
-
-                  const SizedBox(height: 16),
-
-                  // Forgot Password
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () {
-                        Get.toNamed(AppRoutes.forgotPassword);
-                      },
-                      child: const Text(
-                        'Forgot Password?',
-                        style: TextStyle(fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                  ),
-
                   const SizedBox(height: 24),
-
-                  // Login Button
                   Obx(
                     () => SizedBox(
                       width: double.infinity,
@@ -150,7 +114,7 @@ class _LoginViewState extends State<LoginView> {
                       child: ElevatedButton(
                         onPressed: _authController.isLoading.value
                             ? null
-                            : _handleLogin,
+                            : _handleForgotPassword,
                         style: ElevatedButton.styleFrom(
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -160,7 +124,7 @@ class _LoginViewState extends State<LoginView> {
                         child: _authController.isLoading.value
                             ? const CircularProgressIndicator()
                             : const Text(
-                                'Sign In',
+                                'Send Reset Link',
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -169,32 +133,6 @@ class _LoginViewState extends State<LoginView> {
                       ),
                     ),
                   ),
-
-                  const SizedBox(height: 24),
-
-                  // Sign Up Option
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        "Don't have an account?",
-                        style: TextStyle(fontSize: 16, color: Colors.grey),
-                      ),
-                      TextButton(
-                        onPressed: () =>
-                            Get.offAllNamed(AppRoutes.roleSelection),
-                        child: const Text(
-                          'Sign Up',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 24),
                 ],
               ),
             ),
@@ -237,60 +175,10 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 
-  Widget _buildPasswordField() {
-    return TextFormField(
-      controller: _passwordController,
-      decoration: InputDecoration(
-        labelText: 'Password',
-        prefixIcon: Icon(
-          Icons.lock_outline,
-          color: Theme.of(context).primaryColor,
-        ),
-        suffixIcon: IconButton(
-          icon: Icon(
-            _obscurePassword ? Icons.visibility_off : Icons.visibility,
-            color: Colors.grey,
-          ),
-          onPressed: () {
-            setState(() {
-              _obscurePassword = !_obscurePassword;
-            });
-          },
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: Theme.of(context).primaryColor,
-            width: 2,
-          ),
-        ),
-      ),
-      obscureText: _obscurePassword,
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Please enter your password';
-        }
-        if (value.length < 6) {
-          return 'Password must be at least 6 characters';
-        }
-        return null;
-      },
-    );
-  }
-
-  void _handleLogin() {
+  void _handleForgotPassword() {
     if (_formKey.currentState!.validate()) {
-      _authController.signIn(
+      _authController.sendPasswordResetEmail(
         email: _emailController.text.trim(),
-        password: _passwordController.text,
       );
     }
   }

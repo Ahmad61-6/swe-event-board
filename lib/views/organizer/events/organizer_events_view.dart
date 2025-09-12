@@ -1,4 +1,5 @@
 import 'package:data_table_2/data_table_2.dart';
+import 'package:event_board/views/organizer/events/event_enrollments_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -114,7 +115,7 @@ class OrganizerEventsView extends StatelessWidget {
                   controller.events,
                   context,
                   onView: (event) =>
-                      Get.to(() => EventDetailView(event: event)),
+                      Get.to(() => EventDetailView(event: event, isOrg: true)),
                   onEdit: (event) =>
                       Get.to(() => CreateEventView(event: event)),
                   onNotify: _showNotifyDialog,
@@ -209,7 +210,7 @@ class EventDataSource extends DataTableSource {
 
     return DataRow2(
       onTap: () {
-        Get.toNamed(AppRoutes.eventDetail, arguments: event);
+        Get.to(() => EventEnrollmentsView(event: event));
       },
       cells: [
         DataCell(

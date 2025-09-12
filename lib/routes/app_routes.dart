@@ -7,6 +7,7 @@ abstract class AppRoutes {
   static const organizerSignup = '/organizer-signup';
   static const adminSignup = '/admin-signup';
   static const login = '/login';
+  static const forgotPassword = '/forgot-password';
 
   // Student routes
   static const studentDashboard = '/student/dashboard';
@@ -24,6 +25,7 @@ abstract class AppRoutes {
   static const organizerMerchandise = '/organizer/merchandise';
   static const organizerProfile = '/organizer/profile';
   static const organizerNotifications = '/organizer/notifications';
+  static const organizerEventEnrollments = '/organizer/events/enrollments';
 
   // Admin routes
   static const adminDashboard = '/admin/dashboard';

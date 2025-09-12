@@ -43,27 +43,26 @@ class StudentSearchController extends GetxController {
       // Convert query to lowercase for case-insensitive search
       final searchQuery = query.toLowerCase();
 
-      // Search in allEvents collection with multiple conditions
-      Query eventsQuery = _firestore
+      // Get all events first
+      QuerySnapshot snapshot = await _firestore
           .collection('allEvents')
           .where('approved', isEqualTo: true)
           .orderBy('createdAt', descending: true)
-          .limit(_pageSize);
+          .get();
 
-      // Get all events first, then filter locally for better search experience
-      QuerySnapshot snapshot = await eventsQuery.get();
-
-      // Filter events locally for better search functionality
-      List<Event> filteredEvents = snapshot.docs
+      List<Event> allEvents = snapshot.docs
           .map((doc) => Event.fromJson(doc.data() as Map<String, dynamic>))
-          .where(
-            (event) =>
-                _matchesSearchQuery(event, searchQuery) &&
-                event.approvalStatus == 'approved',
-          )
           .toList();
 
-      searchResults.value = filteredEvents;
+      // Filter events locally for better search functionality
+      List<Event> filteredEvents = [];
+      for (var event in allEvents) {
+        if (_matchesSearchQuery(event, searchQuery)) {
+          filteredEvents.add(event);
+        }
+      }
+
+      searchResults.value = filteredEvents.take(_pageSize).toList();
     } catch (e) {
       Get.snackbar('Error', 'Search failed: ${e.toString()}');
       searchResults.clear();
@@ -154,56 +153,53 @@ class StudentSearchController extends GetxController {
     try {
       isLoading.value = true;
 
-      Query eventsQuery = _firestore
+      // Get all events first
+      QuerySnapshot snapshot = await _firestore
           .collection('allEvents')
-          .where('approved', isEqualTo: true);
-
-      // Apply filters
-      if (type != null && type.isNotEmpty) {
-        eventsQuery = eventsQuery.where('type', isEqualTo: type);
-      }
-
-      if (minPrice != null) {
-        eventsQuery = eventsQuery.where(
-          'price',
-          isGreaterThanOrEqualTo: minPrice,
-        );
-      }
-
-      if (maxPrice != null) {
-        eventsQuery = eventsQuery.where('price', isLessThanOrEqualTo: maxPrice);
-      }
-
-      if (startDate != null) {
-        eventsQuery = eventsQuery.where(
-          'startAt',
-          isGreaterThanOrEqualTo: startDate,
-        );
-      }
-
-      if (endDate != null) {
-        eventsQuery = eventsQuery.where(
-          'startAt',
-          isLessThanOrEqualTo: endDate,
-        );
-      }
-
-      eventsQuery = eventsQuery
+          .where('approved', isEqualTo: true)
           .orderBy('createdAt', descending: true)
-          .limit(_pageSize);
+          .get();
 
-      QuerySnapshot snapshot = await eventsQuery.get();
-
-      List<Event> filteredEvents = snapshot.docs
+      List<Event> allEvents = snapshot.docs
           .map((doc) => Event.fromJson(doc.data() as Map<String, dynamic>))
-          .where(
-            (event) =>
-                query.isEmpty ||
-                _matchesSearchQuery(event, query.toLowerCase()),
-          )
           .toList();
 
-      searchResults.value = filteredEvents;
+      // Filter locally
+      List<Event> filteredEvents = [];
+      for (var event in allEvents) {
+        bool matches = true;
+
+        // Apply filters
+        if (type != null && type.isNotEmpty && event.type != type) {
+          matches = false;
+        }
+
+        if (minPrice != null && event.price < minPrice) {
+          matches = false;
+        }
+
+        if (maxPrice != null && event.price > maxPrice) {
+          matches = false;
+        }
+
+        if (startDate != null && event.startAt.isBefore(startDate)) {
+          matches = false;
+        }
+
+        if (endDate != null && event.startAt.isAfter(endDate)) {
+          matches = false;
+        }
+
+        if (query.isNotEmpty && !_matchesSearchQuery(event, query.toLowerCase())) {
+          matches = false;
+        }
+
+        if (matches) {
+          filteredEvents.add(event);
+        }
+      }
+
+      searchResults.value = filteredEvents.take(_pageSize).toList();
       hasSearched.value = true;
       lastQuery.value = query;
     } catch (e) {

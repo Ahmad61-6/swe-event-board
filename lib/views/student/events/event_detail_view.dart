@@ -8,8 +8,10 @@ import '../../../controllers/enrollment_controller.dart';
 class EventDetailView extends StatelessWidget {
   final Event event;
   final EnrollmentController enrollmentController = Get.find();
+  final bool isOrg;
 
-  EventDetailView({super.key, required this.event});
+  EventDetailView({super.key, required this.event, bool? isOrg})
+    : isOrg = isOrg ?? false;
 
   @override
   Widget build(BuildContext context) {
@@ -127,8 +129,8 @@ class EventDetailView extends StatelessWidget {
                   _buildAboutSection(event, theme),
                   const SizedBox(height: 32),
 
-                  // Enrollment/Cancellation Button
-                  _buildEnrollmentButton(event, theme),
+                  // Enrollment/Cancellation Button (only show if not organizer)
+                  if (!isOrg) _buildEnrollmentButton(event, theme),
                 ],
               ),
             ),
@@ -453,7 +455,6 @@ class EventDetailView extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // Cancel enrollment button (only for free events)
           if (!isPaidEvent)
             ElevatedButton(
               onPressed: isCancelling

@@ -181,4 +181,27 @@ class AuthController extends GetxController {
   String? getCachedRole() {
     return _storage.read(AppConstants.userRoleKey);
   }
+
+  Future<void> sendPasswordResetEmail({required String email}) async {
+    try {
+      isLoading.value = true;
+      if (!await _networkService.isConnected) {
+        Get.snackbar('No Internet', 'Please check your internet connection.');
+        isLoading.value = false;
+        return;
+      }
+      await _authService.sendPasswordResetEmail(email: email);
+      Get.snackbar(
+        'Success',
+        'Password reset link sent to your email.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      Get.offAllNamed(AppRoutes.login);
+    } catch (e) {
+      debugPrint('=====>Error during password reset: ${e.toString()}');
+      Get.snackbar('Error', e.toString());
+    } finally {
+      isLoading.value = false;
+    }
+  }
 }

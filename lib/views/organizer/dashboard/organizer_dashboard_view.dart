@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
+import '../../../controllers/enrollment_controller.dart';
 import '../../../controllers/organizer/organizer_dashboard_controller.dart';
 import '../../../routes/app_routes.dart';
 
@@ -15,6 +16,9 @@ class OrganizerDashboardView extends StatefulWidget {
 class _OrganizerDashboardViewState extends State<OrganizerDashboardView> {
   final OrganizerDashboardController controller = Get.put(
     OrganizerDashboardController(),
+  );
+  final EnrollmentController enrollmentController = Get.put(
+    EnrollmentController(),
   );
 
   @override

@@ -24,10 +24,10 @@ class StudentDashboardView extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Dashboard'),
         actions: [
-          IconButton(
-            onPressed: () => Get.toNamed(AppRoutes.studentSearch),
-            icon: const Icon(Icons.search),
-          ),
+          // IconButton(
+          //   onPressed: () => Get.toNamed(AppRoutes.studentSearch),
+          //   icon: const Icon(Icons.search),
+          // ),
           IconButton(
             onPressed: () => Get.toNamed(AppRoutes.studentNotifications),
             icon: const Icon(Icons.notifications),

@@ -4,7 +4,6 @@ import 'dashboard/student_dashboard_view.dart';
 import 'enrollments/student_enrollments_view.dart';
 import 'notifications/student_notifications_view.dart';
 import 'profile/student_profile_view.dart';
-import 'search/student_search_view.dart';
 
 class StudentHomeView extends StatefulWidget {
   const StudentHomeView({super.key});
@@ -19,7 +18,7 @@ class _StudentHomeViewState extends State<StudentHomeView> {
   final List<Widget> _pages = [
     StudentDashboardView(),
     StudentEnrollmentsView(),
-    StudentSearchView(),
+    // StudentSearchView(),
     StudentNotificationsView(),
     StudentProfileView(),
   ];
@@ -75,11 +74,11 @@ class _StudentHomeViewState extends State<StudentHomeView> {
               activeIcon: Icon(Icons.event, size: 24),
               label: 'Enrollments',
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.search_outlined, size: 24),
-              activeIcon: Icon(Icons.search, size: 24),
-              label: 'Search',
-            ),
+            // BottomNavigationBarItem(
+            //   icon: Icon(Icons.search_outlined, size: 24),
+            //   activeIcon: Icon(Icons.search, size: 24),
+            //   label: 'Search',
+            // ),
             BottomNavigationBarItem(
               icon: Icon(Icons.notifications_outlined, size: 24),
               activeIcon: Icon(Icons.notifications, size: 24),

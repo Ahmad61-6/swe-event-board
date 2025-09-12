@@ -156,7 +156,7 @@ class _CreateEventViewState extends State<CreateEventView> {
               const SizedBox(height: 16),
               _buildTextFormField(
                 controller: _priceController,
-                label: 'Price (₹)',
+                label: 'Price BDT',
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
