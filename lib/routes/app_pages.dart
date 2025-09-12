@@ -4,6 +4,8 @@ import 'package:event_board/views/admin/users/admin_users_view.dart';
 import 'package:event_board/views/organizer/events/organizer_events_view.dart';
 import 'package:event_board/views/splash/splash_view.dart';
 import 'package:event_board/views/student/events/all_events_view.dart';
+import 'package:event_board/views/student/notifications/student_notifications_view.dart';
+import 'package:event_board/views/student/search/student_search_view.dart';
 import 'package:get/get.dart';
 
 import '../bindings/auth_binding.dart';
@@ -154,5 +156,15 @@ class AppPages {
       middlewares: [OrganizerGuard()],
     ),
     GetPage(name: '/unauthorized', page: () => const UnauthorizedView()),
+    GetPage(
+      name: AppRoutes.studentNotifications,
+      page: () => StudentNotificationsView(),
+      middlewares: [StudentGuard()],
+    ),
+    GetPage(
+      name: AppRoutes.studentSearch,
+      page: () => StudentSearchView(),
+      middlewares: [StudentGuard()],
+    ),
   ];
 }

@@ -7,9 +7,7 @@ import '../../../controllers/enrollment_controller.dart';
 
 class EventDetailView extends StatelessWidget {
   final Event event;
-  final EnrollmentController enrollmentController = Get.put(
-    EnrollmentController(),
-  );
+  final EnrollmentController enrollmentController = Get.find();
 
   EventDetailView({super.key, required this.event});
 
@@ -36,7 +34,7 @@ class EventDetailView extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   shadows: [
                     Shadow(
-                      color: Colors.black.withValues(alpha: 0.8),
+                      color: Colors.black.withOpacity(0.8),
                       blurRadius: 10,
                       offset: const Offset(0, 2),
                     ),
@@ -80,7 +78,7 @@ class EventDetailView extends StatelessWidget {
                         begin: Alignment.bottomCenter,
                         end: Alignment.topCenter,
                         colors: [
-                          Colors.black.withValues(alpha: 0.8),
+                          Colors.black.withOpacity(0.8),
                           Colors.transparent,
                           Colors.transparent,
                         ],
@@ -129,7 +127,7 @@ class EventDetailView extends StatelessWidget {
                   _buildAboutSection(event, theme),
                   const SizedBox(height: 32),
 
-                  // Enrollment Button
+                  // Enrollment/Cancellation Button
                   _buildEnrollmentButton(event, theme),
                 ],
               ),
@@ -180,7 +178,7 @@ class EventDetailView extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: Colors.black.withOpacity(0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -290,7 +288,7 @@ class EventDetailView extends StatelessWidget {
               Text(
                 title,
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                  color: theme.colorScheme.onSurface.withOpacity(0.7),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -320,9 +318,9 @@ class EventDetailView extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
+        border: Border.all(color: color.withOpacity(0.3)),
       ),
       child: Column(
         children: [
@@ -331,7 +329,7 @@ class EventDetailView extends StatelessWidget {
           Text(
             title,
             style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+              color: theme.colorScheme.onSurface.withOpacity(0.7),
             ),
           ),
           const SizedBox(height: 4),
@@ -373,7 +371,7 @@ class EventDetailView extends StatelessWidget {
               : 'No description available for this event.',
           style: theme.textTheme.bodyLarge?.copyWith(
             height: 1.6,
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+            color: theme.colorScheme.onSurface.withOpacity(0.8),
           ),
           textAlign: TextAlign.justify,
         ),
@@ -381,7 +379,147 @@ class EventDetailView extends StatelessWidget {
     );
   }
 
+  Future<bool> _isUserEnrolled() async {
+    return await enrollmentController.isUserEnrolled(event.eventId);
+  }
+
   Widget _buildEnrollmentButton(Event event, ThemeData theme) {
+    return FutureBuilder<bool>(
+      future: _isUserEnrolled(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final isEnrolled = snapshot.data ?? false;
+
+        if (isEnrolled) {
+          // User is already enrolled - show cancellation options
+          return _buildCancellationSection(event, theme);
+        } else {
+          // User is not enrolled - show enrollment button
+          return _buildEnrollmentSection(event, theme);
+        }
+      },
+    );
+  }
+
+  Widget _buildCancellationSection(Event event, ThemeData theme) {
+    return Obx(() {
+      final isCancelling = enrollmentController.isCancelling.value;
+      final isPaidEvent = event.price > 0;
+
+      return Column(
+        children: [
+          // Already enrolled status
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.green.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.green.withOpacity(0.3)),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.green, size: 24),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Already Enrolled',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green[700],
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        isPaidEvent
+                            ? 'Payment completed - BDT ${event.price}'
+                            : 'Free enrollment',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.green[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Cancel enrollment button (only for free events)
+          if (!isPaidEvent)
+            ElevatedButton(
+              onPressed: isCancelling
+                  ? null
+                  : () => _showCancelEnrollmentDialog(event),
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 56),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: isCancelling
+                  ? const SizedBox(
+                      height: 24,
+                      width: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.cancel, size: 20),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Cancel Enrollment',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+            ),
+
+          // Message for paid events
+          if (isPaidEvent)
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.orange.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.orange.withOpacity(0.3)),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.info, color: Colors.orange, size: 20),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Paid enrollments cannot be cancelled',
+                      style: TextStyle(fontSize: 14, color: Colors.orange[700]),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      );
+    });
+  }
+
+  Widget _buildEnrollmentSection(Event event, ThemeData theme) {
     return Obx(() {
       final isEnrolling = enrollmentController.isEnrolling.value;
       final isEventFull = event.enrolledCount >= event.capacity;
@@ -391,9 +529,9 @@ class EventDetailView extends StatelessWidget {
         return Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.orange.withValues(alpha: 0.1),
+            color: Colors.orange.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+            border: Border.all(color: Colors.orange.withOpacity(0.3)),
           ),
           child: Row(
             children: [
@@ -430,7 +568,7 @@ class EventDetailView extends StatelessWidget {
                   : Colors.green,
               foregroundColor: Colors.white,
               elevation: 4,
-              shadowColor: theme.primaryColor.withValues(alpha: 0.3),
+              shadowColor: theme.primaryColor.withOpacity(0.3),
             ),
             child: isEnrolling
                 ? const SizedBox(
@@ -475,6 +613,62 @@ class EventDetailView extends StatelessWidget {
         ],
       );
     });
+  }
+
+  void _showCancelEnrollmentDialog(Event event) {
+    Get.dialog(
+      AlertDialog(
+        title: const Text('Cancel Enrollment'),
+        content: Text(
+          'Are you sure you want to cancel your enrollment for "${event.title}"?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('Keep Enrollment'),
+          ),
+          TextButton(
+            onPressed: () {
+              Get.back();
+              _cancelEnrollment(event);
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Cancel Enrollment'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _cancelEnrollment(Event event) async {
+    try {
+      // Get the user's enrollment for this event
+      final user = enrollmentController.getCurrentUser();
+      if (user == null) return;
+
+      final enrollment = await enrollmentController.getUserEnrollmentForEvent(
+        user.uid,
+        event.eventId,
+      );
+
+      if (enrollment != null) {
+        await enrollmentController.cancelEnrollment(enrollment.enrollmentId);
+
+        Get.snackbar(
+          'Cancelled',
+          'Enrollment cancelled successfully',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to cancel enrollment: ${e.toString()}',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
   }
 
   void _handleEnrollment(Event event) async {
@@ -545,7 +739,6 @@ class EventDetailView extends StatelessWidget {
       );
 
       if (result == true) {
-        // Use the correct method name - enrollToEvent with amountPaid parameter
         final enrollmentSuccess = await enrollmentController.enrollToEvent(
           event,
           amountPaid: event.price,
@@ -562,7 +755,6 @@ class EventDetailView extends StatelessWidget {
         }
       }
     } else {
-      // Use the correct method name - enrollToEvent without amountPaid for free events
       final enrollmentSuccess = await enrollmentController.enrollToEvent(event);
       if (enrollmentSuccess) {
         Get.snackbar(

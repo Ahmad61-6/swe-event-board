@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 
 import '../../../controllers/admin/admin_dashboard_controller.dart';
 import '../../../routes/app_routes.dart';
@@ -117,48 +116,6 @@ class AdminDashboardView extends StatelessWidget {
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: 16),
-          Card(
-            shape: RoundedRectangleBorder(
-              side: const BorderSide(color: Colors.grey),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.purple.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(Icons.attach_money, color: Colors.purple),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Total Revenue',
-                          style: TextStyle(fontSize: 14, color: Colors.grey),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'BDT ${NumberFormat('#,##0.00').format(controller.totalRevenue.value)}',
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ),
         ],
       );

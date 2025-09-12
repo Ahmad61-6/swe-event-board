@@ -17,6 +17,7 @@ class EnrollmentController extends GetxController {
   final RxList<EventEnrollment> studentEnrollments = <EventEnrollment>[].obs;
   final RxBool isLoading = true.obs;
   final RxBool isEnrolling = false.obs;
+  final RxBool isCancelling = false.obs;
 
   @override
   void onInit() {
@@ -295,17 +296,19 @@ class EnrollmentController extends GetxController {
 
   Future<void> cancelEnrollment(String enrollmentId) async {
     try {
+      isCancelling.value = true;
+
       final enrollment = studentEnrollments.firstWhere(
         (e) => e.enrollmentId == enrollmentId,
       );
 
-      // Don't allow cancellation if payment is completed for paid events
       if (enrollment.amountPaid > 0 &&
           enrollment.paymentStatus == 'completed') {
         Get.snackbar(
           'Error',
           'Cannot cancel enrollment after payment is completed.',
         );
+        isCancelling.value = false;
         return;
       }
 
@@ -330,7 +333,7 @@ class EnrollmentController extends GetxController {
       batch.update(
         _firestore
             .collection('organizations')
-            .doc(enrollment.orgId) // Use orgId
+            .doc(enrollment.orgId)
             .collection('events')
             .doc(enrollment.eventId)
             .collection('enrollments')
@@ -342,7 +345,7 @@ class EnrollmentController extends GetxController {
       batch.update(
         _firestore
             .collection('organizations')
-            .doc(enrollment.orgId) // Use orgId
+            .doc(enrollment.orgId)
             .collection('events')
             .doc(enrollment.eventId),
         {'enrolledCount': FieldValue.increment(-1)},
@@ -355,9 +358,11 @@ class EnrollmentController extends GetxController {
 
       await batch.commit();
 
-      Get.snackbar('Success', 'Enrollment cancelled successfully!');
+      Get.snackbar('Success', 'Enrollment cancelled successfully');
     } catch (e) {
       Get.snackbar('Error', 'Failed to cancel enrollment: ${e.toString()}');
+    } finally {
+      isCancelling.value = false; // ← Set to false when done
     }
   }
 
@@ -375,6 +380,8 @@ class EnrollmentController extends GetxController {
 
     return enrollment.docs.isNotEmpty;
   }
+
+  // Add these methods to your existing EnrollmentController class
 
   User? getCurrentUser() {
     return _authController.user.value;
