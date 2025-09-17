@@ -22,15 +22,19 @@ Students can view and enroll in events, while organizers and admins can create, 
 - Enrollment Confirmation
 - My Enrollments
 
-📸 *Screenshots here:*  
-![Student Home](screenshots/student/student_dashboard.png)  
-![Student Event Details](screenshots/student/s_event_details.png)
-![role selection](screenshots/student/role_selection.png)
-![Student Signup](screenshots/student/s_signup.png)
-![Student Enrollment](screenshots/student/student_enrollments.png)
-![Student Profile](screenshots/student/s_profile.png)
-![Student Payment](screenshots/student/s_payment.png)
-![Student Notification](screenshots/student/s_notify.png)
+📸 *Screenshots here:* 
+
+| Dashboard | Event Details | Role Selection |
+|-----------|---------------|----------------|
+| ![Student Home](screenshots/student/student_dashboard.png) | ![Student Event Details](screenshots/student/s_event_details.png) | ![Role Selection](screenshots/student/role_selection.png) |
+
+| Signup | Enrollments | Profile |
+|--------|-------------|---------|
+| ![Student Signup](screenshots/student/s_signup.png) | ![Student Enrollment](screenshots/student/student_enrollments.png) | ![Student Profile](screenshots/student/s_profile.png) |
+
+| Payment | Notifications |
+|---------|---------------|
+| ![Student Payment](screenshots/student/s_payment.png) | ![Student Notification](screenshots/student/s_notify.png) |
 
 ---
 
@@ -40,15 +44,21 @@ Students can view and enroll in events, while organizers and admins can create, 
 - Manage Events (Edit/Delete)
 - View Participants
 
-📸 *Screenshots here:*  
-![Organizer Dashboard](screenshots/organizer/o_dashboard.png)
-![Organizer Merchandise](screenshots/organizer/o_add_march.png)
-![Organizer Edit Event](screenshots/organizer/o_edit_event.png)
-![Organizer Event Management](screenshots/organizer/o_events_1.png)
-![Organizer Event Management](screenshots/organizer/o_events_2.png)
-![Organizer Notification](screenshots/organizer/o_notify.png)
-![Organizer Profile](screenshots/organizer/o_profile.png)
-![Organizer Signup](screenshots/organizer/o_signup.png)
+📸 *Screenshots here:*
+
+| Dashboard | Merchandise | Edit Event |
+|-----------|-------------|------------|
+| ![Organizer Dashboard](screenshots/organizer/o_dashboard.png) | ![Organizer Merchandise](screenshots/organizer/o_add_march.png) | ![Organizer Edit Event](screenshots/organizer/o_edit_event.png) |
+
+| Event Management (1) | Event Management (2) | Notifications |
+|-----------------------|-----------------------|---------------|
+| ![Organizer Event Management](screenshots/organizer/o_events_1.png) | ![Organizer Event Management](screenshots/organizer/o_events_2.png) | ![Organizer Notification](screenshots/organizer/o_notify.png) |
+
+| Profile | Signup |
+|---------|--------|
+| ![Organizer Profile](screenshots/organizer/o_profile.png) | ![Organizer Signup](screenshots/organizer/o_signup.png) |
+
+
 ---
 
 ### 🛡️ Admin Screens
@@ -58,14 +68,18 @@ Students can view and enroll in events, while organizers and admins can create, 
 - Feedback Management
 
 📸 *Screenshots here:*  
-![Admin Dashboard](screenshots/admin/a_dashboard.png)  
-![Admin Event Details](screenshots/admin/a_event_details.png)  
-![Admin Event Management](screenshots/admin/a_events_1.png)  
-![Admin Event Management](screenshots/admin/a_events_2.png)  
-![Admin Organizer Management](screenshots/admin/a_org_1.png)  
-![Admin Organizer Management](screenshots/admin/a_org_2.png)
-![Admin User Management](screenshots/admin/a_users.png)
-![Admin Organizer Profile](screenshots/admin/a_profile.png)
+
+| Dashboard | Event Details | Event Management (1) |
+|-----------|---------------|-----------------------|
+| ![Admin Dashboard](screenshots/admin/a_dashboard.png) | ![Admin Event Details](screenshots/admin/a_event_details.png) | ![Admin Event Management](screenshots/admin/a_events_1.png) |
+
+| Event Management (2) | Organizer Management (1) | Organizer Management (2) |
+|-----------------------|--------------------------|--------------------------|
+| ![Admin Event Management](screenshots/admin/a_events_2.png) | ![Admin Organizer Management](screenshots/admin/a_org_1.png) | ![Admin Organizer Management](screenshots/admin/a_org_2.png) |
+
+| User Management | Profile |
+|-----------------|---------|
+| ![Admin User Management](screenshots/admin/a_users.png) | ![Admin Organizer Profile](screenshots/admin/a_profile.png) |
 
 ---
 
