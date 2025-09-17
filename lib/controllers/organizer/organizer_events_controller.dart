@@ -78,29 +78,53 @@ class OrganizerEventsController extends GetxController {
         .orderBy('createdAt', descending: true)
         .snapshots()
         .listen(
-          (snapshot) {
-            if (snapshot.docs.isNotEmpty) {
-              List<Event> newEvents = snapshot.docs
-                  .map(
-                    (doc) => Event.fromJson(doc.data() as Map<String, dynamic>),
-                  )
-                  .toList();
-              events.value = newEvents;
+          (snapshot) async {
+        if (snapshot.docs.isNotEmpty) {
+          List<Event> newEvents = [];
+          for (var doc in snapshot.docs) {
+            final event = Event.fromJson(doc.data() as Map<String, dynamic>);
+            final enrollmentSnapshot = await _firestore
+                .collection('enrollments')
+                .where('eventId', isEqualTo: event.eventId)
+                .get();
+            final enrolledCount = enrollmentSnapshot.docs.length;
+            newEvents.add(
+              Event(
+                eventId: event.eventId,
+                title: event.title,
+                description: event.description,
+                type: event.type,
+                bannerUrl: event.bannerUrl,
+                startAt: event.startAt,
+                endAt: event.endAt,
+                venue: event.venue,
+                meetLink: event.meetLink,
+                price: event.price,
+                capacity: event.capacity,
+                createdByUid: event.createdByUid,
+                approvalStatus: event.approvalStatus,
+                enrolledCount: enrolledCount,
+                conflict: event.conflict,
+                createdAt: event.createdAt,
+              ),
+            );
+          }
+          events.value = newEvents;
 
-              // Update dashboard controller if it exists
-              try {
-                final dashboardController =
-                    Get.find<OrganizerDashboardController>();
-                dashboardController.refreshData();
-              } catch (e) {
-                // Dashboard controller might not be initialized
-              }
-            }
-          },
-          onError: (e) {
-            Get.snackbar('Error', 'Failed to load events: ${e.toString()}');
-          },
-        );
+          // Update dashboard controller if it exists
+          try {
+            final dashboardController =
+            Get.find<OrganizerDashboardController>();
+            dashboardController.refreshData();
+          } catch (e) {
+            // Dashboard controller might not be initialized
+          }
+        }
+      },
+      onError: (e) {
+        Get.snackbar('Error', 'Failed to load events: ${e.toString()}');
+      },
+    );
   }
 
   Future<void> loadEvents({bool refresh = false}) async {}

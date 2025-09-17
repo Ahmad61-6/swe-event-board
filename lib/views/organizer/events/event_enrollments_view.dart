@@ -41,65 +41,68 @@ class EventEnrollmentsView extends StatelessWidget {
         }
 
         return SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          child: DataTable(
-            columns: const [
-              DataColumn(label: Text('Student Name')),
-              DataColumn(label: Text('Email')),
-              DataColumn(label: Text('Student ID')),
-              DataColumn(label: Text('Batch')),
-              DataColumn(label: Text('Payment Status')),
-              DataColumn(label: Text('Enrollment Status')),
-              DataColumn(label: Text('Enrolled At')),
-            ],
-            rows: controller.enrollments.map((enrollment) {
-              final student = controller.getStudentByUid(enrollment.studentUid);
+          scrollDirection: Axis.horizontal,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: DataTable(
+              columns: const [
+                DataColumn(label: Text('Student Name')),
+                DataColumn(label: Text('Email')),
+                DataColumn(label: Text('Student ID')),
+                DataColumn(label: Text('Batch')),
+                DataColumn(label: Text('Payment Status')),
+                DataColumn(label: Text('Enrollment Status')),
+                DataColumn(label: Text('Enrolled At')),
+              ],
+              rows: controller.enrollments.map((enrollment) {
+                final student = controller.getStudentByUid(enrollment.studentUid);
 
-              return DataRow(
-                cells: [
-                  DataCell(Text(student.displayName)),
-                  DataCell(Text(student.email)),
-                  DataCell(Text(student.studentId)),
-                  DataCell(Text(student.batch)),
-                  DataCell(
-                    Chip(
-                      label: Text(
-                        enrollment.paymentStatus.toUpperCase(),
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.white,
+                return DataRow(
+                  cells: [
+                    DataCell(Text(student.displayName)),
+                    DataCell(Text(student.email)),
+                    DataCell(Text(student.studentId)),
+                    DataCell(Text(student.batch)),
+                    DataCell(
+                      Chip(
+                        label: Text(
+                          enrollment.paymentStatus.toUpperCase(),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.white,
+                          ),
                         ),
+                        backgroundColor: enrollment.paymentStatus == 'completed'
+                            ? Colors.green
+                            : Colors.orange,
                       ),
-                      backgroundColor: enrollment.paymentStatus == 'completed'
-                          ? Colors.green
-                          : Colors.orange,
                     ),
-                  ),
-                  DataCell(
-                    Chip(
-                      label: Text(
-                        enrollment.enrollmentStatus.toUpperCase(),
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.white,
+                    DataCell(
+                      Chip(
+                        label: Text(
+                          enrollment.enrollmentStatus.toUpperCase(),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.white,
+                          ),
                         ),
+                        backgroundColor:
+                            enrollment.enrollmentStatus == 'registered'
+                                ? Colors.green
+                                : Colors.orange,
                       ),
-                      backgroundColor:
-                          enrollment.enrollmentStatus == 'registered'
-                          ? Colors.green
-                          : Colors.orange,
                     ),
-                  ),
-                  DataCell(
-                    Text(
-                      DateFormat(
-                        'MMM dd, yyyy HH:mm',
-                      ).format(enrollment.enrolledAt),
+                    DataCell(
+                      Text(
+                        DateFormat(
+                          'MMM dd, yyyy HH:mm',
+                        ).format(enrollment.enrolledAt),
+                      ),
                     ),
-                  ),
-                ],
-              );
-            }).toList(),
+                  ],
+                );
+              }).toList(),
+            ),
           ),
         );
       }),

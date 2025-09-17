@@ -25,7 +25,6 @@ class EventEnrollmentsController extends GetxController {
     try {
       isLoading.value = true;
 
-      // Query the main enrollments collection directly
       final enrollmentSnapshot = await _firestore
           .collection('enrollments')
           .where('eventId', isEqualTo: event.eventId)
@@ -44,7 +43,6 @@ class EventEnrollmentsController extends GetxController {
             .toList();
 
         if (studentUids.isNotEmpty) {
-          // Process in batches of 10 (Firestore limit for 'whereIn')
           final List<Student> allStudents = [];
 
           for (int i = 0; i < studentUids.length; i += 10) {
